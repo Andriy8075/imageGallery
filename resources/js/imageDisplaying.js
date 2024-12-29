@@ -10,6 +10,7 @@ for (let i = 0; i<countOfCols; i++) {
     imageContainer.appendChild(colDiv);
     heights[i] = 0;
 }
+
 const addImage = (link) => {
     const cols = document.getElementsByClassName('col');
     const imageDiv = document.createElement('div');
@@ -75,8 +76,39 @@ async function placeImages(images) {
 
     await Promise.all(imageLoadPromises);
 }
-let hasMorePages = initialData.images.hasMorePages;
 
+async function loadImagesIfNeeded() {
+    while (true) {
+        if ($(document).height() <= $(window).height()) {
+            await loadMoreImages();
+        } else {
+            break;
+        }
+    }
+}
+
+async function loadMoreImages() {
+    const loadingLabel = $('#loading');
+    loadingLabel.show();
+
+    try {
+        const response = await $.ajax({
+            url: initialData.loadMoreUrl,
+            type: 'GET',
+        });
+
+        if (response.images) {
+            await placeImages(response.images)
+        }
+    } catch (error) {
+        console.error('Could not load more images.', error);
+    } finally {
+        loadingLabel.hide();
+    }
+}
+
+
+let hasMorePages = initialData.images.hasMorePages;
 $(document).ready(function () {
     (async () => {
         const images = initialData.images.images;
@@ -96,35 +128,3 @@ $(document).ready(function () {
         });
     })();
 });
-
-async function loadImagesIfNeeded() {
-    while (true) {
-        if ($(document).height() <= $(window).height()) {
-            await loadMoreImages();
-        } else {
-            break;
-        }
-    }
-}
-
-
-const {loadMoreUrl} = initialData;
-async function loadMoreImages() {
-    const loadingLabel = $('#loading');
-    loadingLabel.show();
-
-    try {
-        const response = await $.ajax({
-            url: loadMoreUrl,
-            type: 'GET',
-        });
-
-        if (response.images) {
-            await placeImages(response.images)
-        }
-    } catch (error) {
-        console.error('Could not load more images.', error);
-    } finally {
-        loadingLabel.hide();
-    }
-}

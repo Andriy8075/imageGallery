@@ -1,4 +1,5 @@
 <x-default-layout>
+    @include('layouts.navigation')
     <div class="p-5 sm:p-8">
         <div id="image-container" class="image-container flex">
         </div>

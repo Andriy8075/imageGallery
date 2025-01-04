@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'postmark' => [
+    'imagemark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
 

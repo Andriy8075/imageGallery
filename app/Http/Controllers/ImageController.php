@@ -14,6 +14,15 @@ class ImageController extends Controller
         return view('images.index', compact('images'));
     }
 
+//    public function show($id) {
+//        $image = Image::find($id);
+//        dd($image->)
+//    }
+
+    public function create() {
+        return view('images.create');
+    }
+
     public function loadMore(Request $request)
     {
         $page = $request->session()->get('image_page', 2);

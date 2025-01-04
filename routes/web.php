@@ -2,14 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ImageController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ImageController::class, 'index']);
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [ImageController::class, 'index'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,14 +14,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-use App\Http\Controllers\ImageController;
-
-Route::get('/images', [ImageController::class, 'index']);
-//Route::get('/image', function() {
-//    dd('text');
-//});
+Route::get('/images', [ImageController::class, 'index'])->name('images');
+//Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
+Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
 
 Route::get('/images/load-more', [ImageController::class, 'loadMore']);
-
 
 require __DIR__.'/auth.php';

@@ -78,11 +78,11 @@ export const loadMoreImages = async () => {
             type: 'GET',
         });
 
+        console.log(response)
+
         if (response.images) {
             await placeImages(response.images)
         }
-    } catch (error) {
-        console.error('Could not load more images.', error);
     } finally {
         loadingLabel.hide();
     }

@@ -15,9 +15,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/images', [ImageController::class, 'index'])->name('images');
-//Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
-Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
-
 Route::get('/images/load-more', [ImageController::class, 'loadMore']);
+Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
+Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
 
 require __DIR__.'/auth.php';

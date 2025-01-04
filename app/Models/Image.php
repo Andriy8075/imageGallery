@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use phpDocumentor\Reflection\DocBlock\Description;
 
 class Image extends Model
 {
-    public $startCountOfImages = 300;
-    protected $fillable = ['url'];
+    use HasFactory;
+    protected $fillable = ['title', 'description'];
 }
 

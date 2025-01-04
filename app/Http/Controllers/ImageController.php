@@ -14,10 +14,10 @@ class ImageController extends Controller
         return view('images.index', compact('images'));
     }
 
-//    public function show($id) {
-//        $image = Image::find($id);
-//        dd($image->)
-//    }
+    public function show($id) {
+        $image = Image::find($id);
+        return view('images.show', compact('image'));
+    }
 
     public function create() {
         return view('images.create');
@@ -45,7 +45,7 @@ class ImageController extends Controller
                 $imageSize = getimagesize($imagePath);
 
                 return [
-                    'url' => asset('storage/' . $image->file_path),
+                    'url' => url('storage/' . $image->file_path),
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                 ];

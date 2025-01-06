@@ -5,7 +5,7 @@ import {
 } from './imageUtils.js';
 
 import {
-    heights,
+    state
 } from './state.js';
 
 const windowWidth = window.innerWidth
@@ -15,24 +15,30 @@ for (let i = 0; i<countOfCols; i++) {
     colDiv.classList.add('col');
     colDiv.id = `col-${i}`;
     colDiv.style.marginRight = '16px';
+    colDiv.style.height = 'min-content'
     const imageContainer = document.getElementById('image-container')
     imageContainer.appendChild(colDiv);
-    heights[i] = 0;
 }
 
 
-let hasMorePages = initialData.images.hasMorePages;
+state.hasMorePages = initialData.images.hasMorePages;
 $(document).ready(function () {
     (async () => {
         const images = initialData.images.images;
-        await placeImages(images, heights);
+        if(images.length === 0) {
+            const loadingLabel = $('#loading');
+            loadingLabel.text(initialData.noImagesMessage);
+            loadingLabel.show();
+            return;
+        }
+        await placeImages(images);
         await loadImagesIfNeeded();
 
         let isLoading = false;
 
         $(window).scroll(async function () {
             if (!isLoading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                if (hasMorePages) {
+                if (state.hasMorePages) {
                     isLoading = true;
                     await loadMoreImages();
                     isLoading = false;

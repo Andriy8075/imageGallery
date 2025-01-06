@@ -1,1 +1,4 @@
-export const heights = []
+export const state = {
+    isMobile: (navigator.maxTouchPoints > 0),
+    hasMorePages: false,
+}

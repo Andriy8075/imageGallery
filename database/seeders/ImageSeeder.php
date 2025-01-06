@@ -10,7 +10,7 @@ class ImageSeeder extends Seeder
 {
     public function run()
     {
-        $count = 500;
+        $count = 205;
 
         $destinationFolder = storage_path('app/public/images');
 

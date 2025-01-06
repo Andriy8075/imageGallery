@@ -1,13 +1,14 @@
 import {
-    heights,
+    state
 } from './state.js';
 
 const findShortestColumn = () => {
     let shortestHeight = -1;
     let shortestIndex = 0;
 
-    for (let i = 0; i < heights.length; i++) {
-        const height = heights[i];
+    const cols = document.getElementsByClassName('col');
+    for (let i = 0; i < cols.length; i++) {
+        const height = cols[i].offsetHeight;
         if (shortestHeight < 0 || height < shortestHeight) {
             shortestHeight = height;
             shortestIndex = i;
@@ -24,24 +25,69 @@ const resizeImage = (img) => {
     img.height = Math.round(maxWidth / aspectRatio);
 };
 
-const addImage = (link) => {
+
+const addImage = (image) => {
     const cols = document.getElementsByClassName('col');
     const imageDiv = document.createElement('div');
-    imageDiv.style.marginBottom = '16px'
+    imageDiv.style.marginBottom = '16px';
+    imageDiv.style.position = 'relative'; // For positioning hover buttons
     const imgElement = document.createElement('img');
 
-    imgElement.src = link.url;
+    imgElement.src = image.url;
     imgElement.classList.add('image-item');
     imageDiv.appendChild(imgElement);
+
+    // Create buttons container
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.style.display = state.isMobile ? 'flex' : 'none'; // Show for mobile by default
+    buttonsDiv.style.justifyContent = 'space-around';
+    buttonsDiv.style.width = '100%'
+    buttonsDiv.style.marginTop = '8px'; // Margin for buttons under the image
+    buttonsDiv.style.position = state.isMobile ? 'static' : 'absolute'; // Static for mobile, absolute for desktop
+    buttonsDiv.style.bottom = '8px'; // Position on hover for desktop
+    buttonsDiv.style.left = '50%';
+    buttonsDiv.style.transform = state.isMobile ? 'translateX(-0%)' : 'translateX(-50%)';
+    buttonsDiv.style.background = 'rgba(0, 0, 0, 0.6)'; // Background for hover buttons
+    buttonsDiv.style.padding = '8px';
+    buttonsDiv.style.borderRadius = '8px';
+    buttonsDiv.style.zIndex = '10';
+
+    // Add buttons
+    const actions = ['Like', 'Comment', 'Repost', 'More'];
+    actions.forEach((action) => {
+        const button = document.createElement('button');
+        button.textContent = action;
+        button.style.color = 'white';
+        button.style.background = 'transparent';
+        button.style.border = 'none';
+        button.style.cursor = 'pointer';
+        button.style.fontSize = '14px';
+        buttonsDiv.appendChild(button);
+
+        // Add functionality for each button (optional)
+        button.addEventListener('click', () => {
+            console.log(`${action} button clicked for image: ${image.url}`);
+        });
+    });
+
+    imageDiv.appendChild(buttonsDiv);
+
+    if (!state.isMobile) {
+        // Show buttons on hover for desktop
+        imageDiv.addEventListener('mouseenter', () => {
+            buttonsDiv.style.display = 'flex';
+        });
+
+        imageDiv.addEventListener('mouseleave', () => {
+            buttonsDiv.style.display = 'none';
+        });
+    }
 
     imgElement.onload = () => {
         resizeImage(imgElement);
 
         const shortestColIndex = findShortestColumn();
         cols[shortestColIndex].appendChild(imageDiv);
-
-        const marginBottom = parseFloat(imageDiv.style.marginBottom)
-        heights[shortestColIndex] += (imgElement.height+marginBottom);
     };
 
     imgElement.onerror = () => {
@@ -49,23 +95,49 @@ const addImage = (link) => {
     };
 };
 
+// const addImage = (image) => {
+//     const cols = document.getElementsByClassName('col');
+//     const imageDiv = document.createElement('div');
+//     imageDiv.style.marginBottom = '16px'
+//     const imgElement = document.createElement('img');
+//
+//     imgElement.src = image.url;
+//     imgElement.classList.add('image-item');
+//     imageDiv.appendChild(imgElement);
+//
+//     imgElement.onload = () => {
+//         resizeImage(imgElement);
+//
+//         const shortestColIndex = findShortestColumn();
+//         cols[shortestColIndex].appendChild(imageDiv);
+//     };
+//
+//     imgElement.onerror = () => {
+//         console.error('Image failed to load:', imgElement.src);
+//     };
+// };
+
 export const placeImages = async (images) => {
-    const links = images;
     const imageLoadPromises = [];
 
-    for (const link of links) {
+    for (const image of images) {
         const loadPromise = new Promise((resolve) => {
             const imgElement = document.createElement('img');
-            imgElement.src = link.url;
+            imgElement.src = image.url;
             imgElement.onload = resolve;
             imgElement.onerror = resolve;
         });
         imageLoadPromises.push(loadPromise);
 
-        addImage(link);
+        addImage(image);
     }
 
     await Promise.all(imageLoadPromises);
+    if (!state.hasMorePages) {
+        const loadingLabel = $('#loading');
+        loadingLabel.text('No more images')
+        loadingLabel.show()
+    }
 }
 
 export const loadMoreImages = async () => {
@@ -78,19 +150,21 @@ export const loadMoreImages = async () => {
             type: 'GET',
         });
 
-        console.log(response)
-
         if (response.images) {
+            state.hasMorePages = response.hasMorePages;
             await placeImages(response.images)
         }
+
     } finally {
-        loadingLabel.hide();
+        if(state.hasMorePages) {
+            loadingLabel.hide();
+        }
     }
 }
 
 export const loadImagesIfNeeded = async () =>{
     while (true) {
-        if ($(document).height() <= $(window).height()) {
+        if ($(document).height() <= $(window).height() && state.hasMorePages) {
             await loadMoreImages();
         } else {
             break;

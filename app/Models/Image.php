@@ -9,6 +9,6 @@ use phpDocumentor\Reflection\DocBlock\Description;
 class Image extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'description'];
+    protected $fillable = ['title', 'description', 'file_path', 'user_id'];
 }
 

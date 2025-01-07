@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ImageFactory extends Factory
 {
@@ -20,27 +21,20 @@ class ImageFactory extends Factory
         $height = rand(50, 2000);
 
         $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 1000);
-        $fileName = 'image_' . $this->i . '.jpg';
+        $fileName = Str::random(40) . '.jpg';
         $newPath = $destinationFolder . '/' . $fileName;
 
 
         $response = Http::get($imageUrl);
         File::put($newPath, $response->body());
 
-        DB::table('images')->insert([
-            'title' => 'Image ' . $this->i,
-            'description' => 'Description for image ' . $this->i,
-            'file_path' => 'images/' . $fileName,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         $this->i++;
 
         return [
             'title' => 'Image ' . $this->i,
             'description' => 'Description for image ' . $this->i,
-            'file_path' => 'images/' . $fileName,  // Image path relative to the public folder
+            'user_id' => $this->faker->numberBetween(1, 5),
+            'file_path' => $fileName,  // Image path relative to the public folder
         ];
     }
 

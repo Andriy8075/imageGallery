@@ -1,5 +1,5 @@
 <x-default-layout>
-    @include('layouts.navigation')
+@include('layouts.navigation')
     <div class="p-5 sm:p-8">
         <div id="image-container" class="image-container flex">
         </div>
@@ -14,10 +14,9 @@
         const initialData = {
             images: @json($images),
             imageLoadingConfig: @json(config('image_loading')),
-            loadMoreUrl: "{{ url('/images/load-more') }}",
-            noImagesMessage: 'No images suitable for your search',
+            loadMoreUrl: "{{ url('/load-more-mine') }}",
+            noImagesMessage: 'You haven\'t uploaded images yet',
         };
     </script>
     @vite('resources/js/imageDisplaying.js')
-    @vite('resources/css/styles.css')
 </x-default-layout>

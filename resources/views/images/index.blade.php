@@ -19,4 +19,5 @@
         };
     </script>
     @vite('resources/js/imageDisplaying.js')
+    @vite('resources/css/styles.css')
 </x-default-layout>

@@ -1,0 +1,28 @@
+.like-button {
+    cursor: pointer;
+    /*width: 100px;*/
+    /*height: 100px;*/
+    transition: transform 0.2s ease;
+}
+.like-button:hover {
+    transform: scale(1.1);
+}
+.like {
+    fill: white;
+    stroke: #333;
+    stroke-width: 2px;
+    transition: fill 0.4s ease, stroke 0.4s ease;
+}
+.like.red {
+    fill: red;
+    stroke: red;
+    animation: heartbeat 0.4s ease-in-out;
+}
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}

@@ -20,7 +20,13 @@ Route::get('/images/create', [ImageController::class, 'create'])->name('images.c
 Route::post('/images/create', [ImageController::class, 'store'])->name('images.store');
 Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
 
-Route::get('/my-images', [ImageController::class, 'myImages'])->middleware('auth')->name('my-images');
-Route::get('/load-more-mine', [ImageController::class, 'loadMoreMine'])->middleware('auth')->name('load-more-mine');
+Route::get('/my-images', [ImageController::class, 'myImages'])->middleware('auth')
+    ->name('my-images');
+Route::get('/load-more-mine', [ImageController::class, 'loadMoreMine'])->middleware('auth')
+    ->name('load-more-mine');
+
+Route::get('/alpine-test', function () {
+    return view('alpine-test');
+});
 
 require __DIR__.'/auth.php';

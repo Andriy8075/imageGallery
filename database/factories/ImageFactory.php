@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Image;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -33,7 +32,8 @@ class ImageFactory extends Factory
         return [
             'title' => 'Image ' . $this->i,
             'description' => 'Description for image ' . $this->i,
-            'user_id' => $this->faker->numberBetween(1, 5),
+            'user_id' => 12,
+            //'user_id' => $this->faker->numberBetween(1, 5),
             'file_path' => $fileName,  // Image path relative to the public folder
         ];
     }

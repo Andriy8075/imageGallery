@@ -8,8 +8,6 @@
     <div id="loading" style="display: none; text-align: center;">
         Loading more images...
     </div>
-
-    <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
     <script>
         const initialData = {
             images: @json($images),

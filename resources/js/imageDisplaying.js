@@ -22,28 +22,34 @@ for (let i = 0; i<countOfCols; i++) {
 
 
 state.hasMorePages = initialData.images.hasMorePages;
-$(document).ready(function () {
-    (async () => {
-        const images = initialData.images.images;
-        if(images.length === 0) {
-            const loadingLabel = $('#loading');
-            loadingLabel.text(initialData.noImagesMessage);
-            loadingLabel.show();
-            return;
-        }
-        await placeImages(images);
-        await loadImagesIfNeeded();
+document.addEventListener('DOMContentLoaded', async () => {
+    const images = initialData.images.images;
 
-        let isLoading = false;
+    if (images.length === 0) {
+        const loadingLabel = document.getElementById('loading');
+        loadingLabel.textContent = initialData.noImagesMessage;
+        loadingLabel.style.display = 'block'; // Show the message
+        return;
+    }
 
-        $(window).scroll(async function () {
-            if (!isLoading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                if (state.hasMorePages) {
-                    isLoading = true;
-                    await loadMoreImages();
-                    isLoading = false;
-                }
+    await placeImages(images);
+    await loadImagesIfNeeded();
+
+    let isLoading = false;
+
+    window.addEventListener('scroll', async () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+
+        // Check if near the bottom of the page
+        if (!isLoading && scrollTop + clientHeight >= scrollHeight - 100) {
+            if (state.hasMorePages) {
+                isLoading = true;
+                await loadMoreImages();
+                isLoading = false;
             }
-        });
-    })();
+        }
+    });
 });
+

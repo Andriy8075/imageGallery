@@ -131,10 +131,6 @@ const addImage = async (image) => {
             cols[shortestColIndex].appendChild(imageDiv);
             resolve();
         };
-
-        imgElement.onerror = () => {
-            console.error('Image failed to load:', imgElement.src);
-        };
     })
 };
 

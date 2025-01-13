@@ -72,83 +72,78 @@ const svgIcons = {
     }
 };
 
-const addImage = (image) => {
-    const cols = document.getElementsByClassName('col');
-    const imageDiv = document.createElement('div');
-    imageDiv.style.marginBottom = '16px';
-    imageDiv.style.position = 'relative'; // For positioning hover buttons
-    const imgElement = document.createElement('img');
+const addImage = async (image) => {
+    return new Promise((resolve) => {
+        const cols = document.getElementsByClassName('col');
+        const imageDiv = document.createElement('div');
+        imageDiv.style.marginBottom = '16px';
+        imageDiv.style.position = 'relative'; // For positioning hover buttons
+        const imgElement = document.createElement('img');
 
-    imgElement.src = image.url;
-    imgElement.classList.add('image-item');
-    imageDiv.appendChild(imgElement);
+        imgElement.src = image.url;
+        imgElement.classList.add('image-item');
+        imageDiv.appendChild(imgElement);
 
-    // Create buttons container
-    const buttonsDiv = document.createElement('div');
-    buttonsDiv.style.display = state.isMobile ? 'flex' : 'none'; // Show for mobile by default
-    buttonsDiv.style.justifyContent = 'space-around';
-    buttonsDiv.style.width = '100%';
-    buttonsDiv.style.marginTop = '8px'; // Margin for buttons under the image
-    buttonsDiv.style.position = state.isMobile ? 'static' : 'absolute'; // Static for mobile, absolute for desktop
-    buttonsDiv.style.bottom = '8px'; // Position on hover for desktop
-    buttonsDiv.style.left = '50%';
-    buttonsDiv.style.transform = state.isMobile ? 'translateX(-0%)' : 'translateX(-50%)';
-    buttonsDiv.style.background = 'rgba(0, 0, 0, 0.6)'; // Background for hover buttons
-    buttonsDiv.style.padding = '8px';
-    buttonsDiv.style.borderRadius = '8px';
-    buttonsDiv.style.zIndex = '10';
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.style.display = state.isMobile ? 'flex' : 'none'; // Show for mobile by default
+        buttonsDiv.style.justifyContent = 'space-around';
+        buttonsDiv.style.width = '100%';
+        buttonsDiv.style.marginTop = '8px'; // Margin for buttons under the image
+        buttonsDiv.style.position = state.isMobile ? 'static' : 'absolute'; // Static for mobile, absolute for desktop
+        buttonsDiv.style.bottom = '8px'; // Position on hover for desktop
+        buttonsDiv.style.left = '50%';
+        buttonsDiv.style.transform = state.isMobile ? 'translateX(-0%)' : 'translateX(-50%)';
+        buttonsDiv.style.background = 'rgba(0, 0, 0, 0.6)'; // Background for hover buttons
+        buttonsDiv.style.padding = '8px';
+        buttonsDiv.style.borderRadius = '8px';
+        buttonsDiv.style.zIndex = '10';
 
-    Object.keys(svgIcons).forEach((action) => {
-        const button = document.createElement('button');
-        button.innerHTML = svgIcons[action].icon;
-        button.style.color = 'white';
-        button.style.background = 'transparent';
-        button.style.border = 'none';
-        button.style.cursor = 'pointer';
-        button.style.fontSize = '14px';
+        Object.keys(svgIcons).forEach((action) => {
+            const button = document.createElement('button');
+            button.innerHTML = svgIcons[action].icon;
+            button.style.color = 'white';
+            button.style.background = 'transparent';
+            button.style.border = 'none';
+            button.style.cursor = 'pointer';
+            button.style.fontSize = '14px';
 
-        buttonsDiv.appendChild(button);
+            buttonsDiv.appendChild(button);
 
-        button.addEventListener('click', svgIcons[action].onClick);
-    });
-
-    imageDiv.appendChild(buttonsDiv);
-
-    if (!state.isMobile) {
-        imageDiv.addEventListener('mouseenter', () => {
-            buttonsDiv.style.display = 'flex';
+            button.addEventListener('click', svgIcons[action].onClick);
         });
 
-        imageDiv.addEventListener('mouseleave', () => {
-            buttonsDiv.style.display = 'none';
-        });
-    }
+        imageDiv.appendChild(buttonsDiv);
 
-    imgElement.onload = () => {
-        resizeImage(imgElement);
+        if (!state.isMobile) {
+            imageDiv.addEventListener('mouseenter', () => {
+                buttonsDiv.style.display = 'flex';
+            });
 
-        const shortestColIndex = findShortestColumn();
-        cols[shortestColIndex].appendChild(imageDiv);
-    };
+            imageDiv.addEventListener('mouseleave', () => {
+                buttonsDiv.style.display = 'none';
+            });
+        }
 
-    imgElement.onerror = () => {
-        console.error('Image failed to load:', imgElement.src);
-    };
+        imgElement.onload = () => {
+            resizeImage(imgElement);
+
+            const shortestColIndex = findShortestColumn();
+            cols[shortestColIndex].appendChild(imageDiv);
+            resolve();
+        };
+
+        imgElement.onerror = () => {
+            console.error('Image failed to load:', imgElement.src);
+        };
+    })
 };
 
 export const placeImages = async (images) => {
     const imageLoadPromises = [];
 
     for (const image of images) {
-        const loadPromise = new Promise((resolve) => {
-            const imgElement = document.createElement('img');
-            imgElement.src = image.url;
-            imgElement.onload = resolve;
-            imgElement.onerror = resolve;
-        });
+        const loadPromise = addImage(image);
         imageLoadPromises.push(loadPromise);
-
-        addImage(image);
     }
 
     await Promise.all(imageLoadPromises);

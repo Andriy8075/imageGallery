@@ -52,6 +52,29 @@ const svgIcons = {
             console.log("Edit button clicked");
         }
     },
+    More: {
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2zm0 2c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2zm0 6c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z" fill="white"/>
+                </svg>`,
+        onClick: function(button) {
+            return function () {
+                console.log("More button clicked");
+                const dropdown = document.getElementById('dropdown');
+                const buttonRect = button.getBoundingClientRect();
+                dropdown.style.visibility = 'hidden';
+                dropdown.style.display = 'block';
+                const dropdownRect = dropdown.getBoundingClientRect();
+                console.log(buttonRect)
+                console.log(dropdownRect)
+                dropdown.style.left = `${buttonRect.left - dropdownRect.width/2 + buttonRect.width/2 + scrollX}px`
+                dropdown.style.top =`${buttonRect.top - dropdownRect.height - 16 + scrollY}px`
+                dropdown.style.display = '';
+                dropdown.style.visibility = '';
+                document.getElementById('dropdown-trigger').click()
+            }
+            //document.querySelector('#more-popup-trigger').click()
+        }
+    },
     // Delete: {
     //     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
     //             <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12Zm2.46-7.88l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12ZM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5Z" fill="white"/>
@@ -60,16 +83,6 @@ const svgIcons = {
     //         console.log("Delete button clicked");
     //     }
     // },
-    More: {
-        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 8c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2zm0 2c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2zm0 6c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z" fill="white"/>
-                </svg>`,
-        onClick: function() {
-            console.log("More button clicked");
-            document.getElementById('dropdown-trigger').click()
-                //document.querySelector('#more-popup-trigger').click()
-        }
-    }
 };
 
 const addImage = async (image) => {
@@ -97,6 +110,7 @@ const addImage = async (image) => {
         buttonsDiv.style.padding = '8px';
         buttonsDiv.style.borderRadius = '8px';
         buttonsDiv.style.zIndex = '10';
+        buttonsDiv.id = image.id;
 
         Object.keys(svgIcons).forEach((action) => {
             const button = document.createElement('button');
@@ -109,7 +123,12 @@ const addImage = async (image) => {
 
             buttonsDiv.appendChild(button);
 
-            button.addEventListener('click', svgIcons[action].onClick);
+            if (action === 'More') {
+                button.addEventListener('click', svgIcons[action].onClick(button));
+            }
+            else {
+                button.addEventListener('click', svgIcons[action].onClick);
+            }
         });
 
         imageDiv.appendChild(buttonsDiv);

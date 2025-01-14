@@ -16,9 +16,14 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/images', [ImageController::class, 'index'])->name('images');
 Route::get('/images/load-more', [ImageController::class, 'loadMore'])->name('images.load-more');
-Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
-Route::post('/images/create', [ImageController::class, 'store'])->name('images.store');
+Route::get('/images/create', [ImageController::class, 'create'])->middleware('auth')->name('images.create');
+Route::post('/images/create', [ImageController::class, 'store'])->middleware('auth')->name('images.store');
 Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
+Route::middleware('auth')->group(function () {
+    Route::get('/images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit');
+    Route::patch('/images/{image}/update', [ImageController::class, 'update'])->name('images.update');
+});
+
 
 Route::get('/my-images', [ImageController::class, 'myImages'])->middleware('auth')
     ->name('my-images');

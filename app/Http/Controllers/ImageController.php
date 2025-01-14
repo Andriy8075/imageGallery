@@ -12,13 +12,13 @@ class ImageController extends Controller
     public function index(Request $request)
     {
         $request->session()->put('images_page', 2);
-        $images = $this->getMoreImages(1);
+        $images = $this->getMoreImages(1, null, false);
         return view('images.index', compact('images'));
     }
 
     public function myImages(Request $request) {
         $query = ['user_id' => Auth::id()];
-        $images = $this->getMoreImages(1, $query);
+        $images = $this->getMoreImages(1, $query, true);
         $request->session()->put('my_images_page', 2);
         return view('my-images', compact('images'));
     }
@@ -39,7 +39,6 @@ class ImageController extends Controller
             'image' => 'image|max:16384|required',
         ]);
 
-        //$file_path = $request->file('image')->store('images');
         $file_path = Storage::disk('images')->putFile('/', $request->file('image'));
 
         Image::create([
@@ -52,6 +51,28 @@ class ImageController extends Controller
         session()->flash('success');
 
         return redirect()->route('images.create');
+    }
+
+    public function edit(Image $image) {
+        return view('images.edit', compact('image'));
+    }
+
+    public function update(Request $request, Image $image)
+    {
+        // Validate only the title and description
+        $request->validate([
+            'title' => 'max:128|string|nullable',
+            'description' => 'max:4096|string|nullable',
+        ]);
+
+        // Update the image's title and description
+        $image->update([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        // Redirect to a relevant page (e.g., back to the edit page or index)
+        return redirect()->route('images.show', $image);
     }
 
     public function loadMore(Request $request)
@@ -79,7 +100,7 @@ class ImageController extends Controller
         return response()->json($imagesData);
     }
 
-    private function getMoreImages($page, $query = null)
+    private function getMoreImages($page, $query = null, $mine = false)
     {
         $queryBuilder = Image::query();
 
@@ -98,9 +119,11 @@ class ImageController extends Controller
                     'url' => url('storage/images/' . $image->file_path),
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
+                    'id' => $image->id,
                 ];
             }),
             'hasMorePages' => $images->hasMorePages(),
+            'mine' => $mine,
         ];
     }
 

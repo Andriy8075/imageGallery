@@ -1,6 +1,6 @@
 <x-default-layout>
     @include('layouts.navigation')
-    <div class="flex justify-center w-full">
+    <div class="flex justify-center w-full pb-3">
         <div class="flex flex-col w-1/3">
             <form method="POST" action="{{ route('images.store') }}" enctype="multipart/form-data" class="w-full">
                 @csrf
@@ -19,8 +19,12 @@
 
                 <div class="mt-4">
                     <x-input-label for="image" :value="__('Upload Image')" />
-                    <input id="image" accept="image/*" class="block mt-1 w-full" type="file" name="image" required/>
+                    <input id="image_input" accept="image/*" class="block mt-1 w-full" type="file" name="image" required/>
                     <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                </div>
+
+                <div id="imagePreview" class="mt-4">
+                    <img id="previewImage" src="" alt="Image Preview" class="hidden max-w-full h-auto rounded-md border border-gray-300">
                 </div>
 
                 <div class="flex items-center justify-end mt-4">
@@ -37,4 +41,24 @@
             @endif
         </div>
     </div>
+    <script>
+        document.getElementById('image_input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewImage = document.getElementById('previewImage');
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.readAsDataURL(file);
+
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                };
+            } else {
+                previewImage.src = '';
+                previewImage.classList.add('hidden');
+            }
+        });
+    </script>
 </x-default-layout>

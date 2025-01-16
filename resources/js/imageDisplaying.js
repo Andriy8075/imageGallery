@@ -2,6 +2,7 @@ import {
     placeImages,
     loadImagesIfNeeded,
     loadMoreImages,
+    confirmDelete
 } from './imageUtils.js';
 
 import {
@@ -52,4 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+if(initialData.mine) {
+    const deleteConfirmButton = document.getElementById('delete-confirm-button');
+    deleteConfirmButton.addEventListener('click', confirmDelete)
+}
 

@@ -11,13 +11,14 @@ class ImageController extends Controller
 {
     public function index(Request $request)
     {
+        $query = ['user_id', '!=', Auth::id()];
         $request->session()->put('images_page', 2);
-        $images = $this->getMoreImages(1, null, false);
+        $images = $this->getMoreImages(1, $query, false);
         return view('images.index', compact('images'));
     }
 
     public function myImages(Request $request) {
-        $query = ['user_id' => Auth::id()];
+        $query = ['user_id', '=', Auth::id()];
         $images = $this->getMoreImages(1, $query, true);
         $request->session()->put('my_images_page', 2);
         return view('my-images', compact('images'));
@@ -90,7 +91,7 @@ class ImageController extends Controller
     public function loadMoreMine(Request $request)
     {
         $page = $request->session()->get('my_images_page');
-        $query = ['user_id' => Auth::id()];
+        $query = ['user_id', '=', Auth::id()];
         $imagesData = $this->getMoreImages($page, $query);
 
         if ($imagesData['hasMorePages']) {
@@ -105,7 +106,7 @@ class ImageController extends Controller
         $queryBuilder = Image::query();
 
         if ($query) {
-            $queryBuilder->where($query);
+            $queryBuilder->where(...$query);
         }
 
         $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);

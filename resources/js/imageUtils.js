@@ -56,24 +56,40 @@ const svgIcons = {
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 8c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2zm0 2c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2zm0 6c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z" fill="white"/>
                 </svg>`,
-        onClick: function(button) {
+        onClick: function (button) {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
             return function () {
-                console.log("More button clicked");
                 const dropdown = document.getElementById('dropdown');
-                const buttonRect = button.getBoundingClientRect();
-                dropdown.style.visibility = 'hidden';
-                dropdown.style.display = 'block';
-                const dropdownRect = dropdown.getBoundingClientRect();
-                console.log(buttonRect)
-                console.log(dropdownRect)
-                dropdown.style.left = `${buttonRect.left - dropdownRect.width/2 + buttonRect.width/2 + scrollX}px`
-                dropdown.style.top =`${buttonRect.top - dropdownRect.height - 16 + scrollY}px`
-                dropdown.style.display = '';
-                dropdown.style.visibility = '';
-                document.getElementById('dropdown-trigger').click()
-            }
-            //document.querySelector('#more-popup-trigger').click()
-        }
+                const dropdownTrigger = document.getElementById('dropdown-trigger');
+
+                const isDropdownOpen = dropdown.style.display !== 'none' && dropdown.style.visibility !== 'hidden';
+                if (isDropdownOpen) {
+                    const dropdownRect = dropdown.getBoundingClientRect();
+                    const buttonRect = button.getBoundingClientRect();
+                    if(state.lastClickedButton === button) {
+                        dropdownTrigger.click()
+                    }
+                    else {
+                        dropdown.style.left = `${buttonRect.left - dropdownRect.width / 2 + buttonRect.width / 2 + scrollX}px`;
+                        dropdown.style.top = `${buttonRect.top - dropdownRect.height - 16 + scrollY}px`;
+                    }
+                }
+                else {
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.display = 'block';
+                    const dropdownRect = dropdown.getBoundingClientRect();
+                    const buttonRect = button.getBoundingClientRect();
+                    dropdown.style.display = '';
+                    dropdown.style.visibility = '';
+                    dropdown.style.left = `${buttonRect.left - dropdownRect.width / 2 + buttonRect.width / 2 + scrollX}px`;
+                    dropdown.style.top = `${buttonRect.top - dropdownRect.height - 16 + scrollY}px`;
+                    dropdownTrigger.click();
+                }
+                state.lastClickedButton = button;
+            };
+        },
     },
     // Delete: {
     //     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -124,6 +140,7 @@ const addImage = async (image) => {
             buttonsDiv.appendChild(button);
 
             if (action === 'More') {
+                button.id = `button-${image.id}`
                 button.addEventListener('click', svgIcons[action].onClick(button));
             }
             else {
@@ -201,4 +218,10 @@ export const loadImagesIfNeeded = async () => {
         }
     }
 };
+
+// resources/js/deleteHandler.js
+export function confirmDelete() {
+    const idOfImageToDelete = state.lastClickedButton
+    console.log(idOfImageToDelete)
+}
 

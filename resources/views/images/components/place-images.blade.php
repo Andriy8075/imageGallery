@@ -13,20 +13,30 @@
              @click.outside="show = false"
              x-cloak>
             <div class="py-1">
-                <script>
-                    somefunction = () => {
-                        console.log('betr')
-                    }
-                </script>
-                <a onclick="somefunction()" class="block px-4 py-2 text-sm text-gray-700 cursor-pointer">
+                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                     Copy link to this image
                 </a>
                 @if($images['mine'])
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <a onclick="openPopup()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         Delete
                     </a>
+
+                    <!-- Popup Modal -->
+                    <div id="popup" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+                            <p class="text-lg font-medium text-gray-900">Delete this image?</p>
+                            <div class="flex justify-end mt-4 space-x-4">
+                                <button id="delete-confirm-button" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                                    Delete
+                                </button>
+                                <button onclick="closePopup()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 @else
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         Report
                     </a>
                 @endif
@@ -47,7 +57,17 @@
             imageLoadingConfig: @json(config('images')),
             loadMoreUrl: "{{ url(config('images.load_urls.' . ($images['mine'] ? 'mine' : 'default'))) }}",
             noImagesMessage: "{{ config('images.no_images_texts.' . ($images['mine'] ? 'mine' : 'default')) }}",
+            mine: "{{$images['mine']}}",
         };
+
+        function openPopup() {
+            document.getElementById('popup').classList.remove('hidden');
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('popup').classList.add('hidden');
+        }
     </script>
     @vite('resources/js/imageDisplaying.js')
 </x-default-layout>

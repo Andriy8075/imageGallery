@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (images.length === 0) {
         const loadingLabel = document.getElementById('loading');
-        loadingLabel.textContent = initialData.noImagesMessage;
+        loadingLabel.textContent = initialData.images.no_images_text;
         loadingLabel.style.display = 'block'; // Show the message
         return;
     }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-if(initialData.mine) {
+if(initialData.query === 'uploaded') {
     const deleteConfirmButton = document.getElementById('delete-confirm-button');
     deleteConfirmButton.addEventListener('click', confirmDelete)
 }

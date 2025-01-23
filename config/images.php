@@ -5,11 +5,13 @@ return [
     'image_max_width' => 300,
     'load_urls' => [
         'default' => '/images/load-more',
-        'mine' => '/load-more-mine',
+        'uploaded' => '/images/load-more-uploaded',
+        'liked' => '/images/load-more-liked',
     ],
     'no_images_texts' => [
-      'default' => 'No images suitable for your search',
-      'mine' => 'You haven\'t uploaded any images yet',
+        'default' => 'No images suitable for your search',
+        'uploaded' => 'You haven\'t uploaded any images yet',
+        'liked' => 'You haven\'t liked any images yet',
     ],
 ];
 

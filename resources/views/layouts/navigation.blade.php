@@ -8,8 +8,6 @@
         </nav>
     @endif
 @else
-
-    <!-- Settings Dropdown -->
     <div class="flex justify-end">
         <div class="px-5 py-4">
             <div class="w-min bg-gray-100 rounded-3xl px-3 py-2">
@@ -31,8 +29,11 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
-                        <x-dropdown-link :href="route('my-images')">
-                            {{ __('My images') }}
+                        <x-dropdown-link :href="route('images.uploaded')">
+                            {{ __('Uploaded') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('images.liked')">
+                            {{ __('Liked') }}
                         </x-dropdown-link>
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">

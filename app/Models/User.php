@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function likedImages()
+    {
+        return $this->belongsToMany(Image::class, 'image_user_likes')
+            ->withTimestamps(); // Tracks when the like occurred
+    }
 }

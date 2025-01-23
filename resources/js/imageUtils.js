@@ -27,11 +27,38 @@ const resizeImage = (img) => {
 
 const svgIcons = {
     Like: {
-        icon: `<svg class="like-button" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="white"/>
-                </svg>`,
-        onClick: function() {
-            console.log("Like button clicked");
+        icon: (image) => {
+            return `<svg class="like-button" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${image.liked ? "red" : "white"}"/>
+            </svg>`;
+        },
+        onClick: function(imageId, likeButton) {
+            return async function() {
+                try {
+                    const response = await fetch(`/images/${imageId}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to like the image.');
+                    }
+
+                    const result = await response.json();
+                    const likeButtonPath = likeButton.querySelector('path');
+
+                    if (result.liked) {
+                        likeButtonPath.setAttribute('fill', 'red')
+                    }
+                    else {
+                        likeButtonPath.setAttribute('fill', 'white')
+                    }
+                } catch (error) {
+                    console.error("An error occurred:", error);
+                }
+            }
         }
     },
     Repost: {
@@ -41,15 +68,16 @@ const svgIcons = {
                     </g>
                 </svg>`,
         onClick: function() {
-            console.log("Repost button clicked");
         }
     },
     Edit: {
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="white"/>
                 </svg>`,
-        onClick: function () {
-            console.log("Edit button clicked");
+        onClick: function (imageId) {
+            return () => {
+                window.location.href = `/images/${imageId}/edit`;
+            }
         }
     },
     More: {
@@ -91,14 +119,6 @@ const svgIcons = {
             };
         },
     },
-    // Delete: {
-    //     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-    //             <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12Zm2.46-7.88l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12ZM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5Z" fill="white"/>
-    //         </svg>`,
-    //     onClick: function () {
-    //         console.log("Delete button clicked");
-    //     }
-    // },
 };
 
 const addImage = async (image) => {
@@ -107,6 +127,7 @@ const addImage = async (image) => {
         const imageDiv = document.createElement('div');
         imageDiv.style.marginBottom = '16px';
         imageDiv.style.position = 'relative'; // For positioning hover buttons
+        imageDiv.id = image.id;
         const imgElement = document.createElement('img');
 
         imgElement.src = image.url;
@@ -114,23 +135,24 @@ const addImage = async (image) => {
         imageDiv.appendChild(imgElement);
 
         const buttonsDiv = document.createElement('div');
-        buttonsDiv.style.display = state.isMobile ? 'flex' : 'none'; // Show for mobile by default
+        buttonsDiv.style.display = state.isMobile ? 'flex' : 'none';
         buttonsDiv.style.justifyContent = 'space-around';
         buttonsDiv.style.width = '100%';
-        buttonsDiv.style.marginTop = '8px'; // Margin for buttons under the image
-        buttonsDiv.style.position = state.isMobile ? 'static' : 'absolute'; // Static for mobile, absolute for desktop
-        buttonsDiv.style.bottom = '8px'; // Position on hover for desktop
+        buttonsDiv.style.marginTop = '8px';
+        buttonsDiv.style.position = state.isMobile ? 'static' : 'absolute';
+        buttonsDiv.style.bottom = '8px';
         buttonsDiv.style.left = '50%';
         buttonsDiv.style.transform = state.isMobile ? 'translateX(-0%)' : 'translateX(-50%)';
-        buttonsDiv.style.background = 'rgba(0, 0, 0, 0.6)'; // Background for hover buttons
+        buttonsDiv.style.background = 'rgba(0, 0, 0, 0.6)';
         buttonsDiv.style.padding = '8px';
         buttonsDiv.style.borderRadius = '8px';
         buttonsDiv.style.zIndex = '10';
-        buttonsDiv.id = image.id;
+        buttonsDiv.dataset.imageId = image.id;
 
-        Object.keys(svgIcons).forEach((action) => {
+        Object.keys(svgIcons).forEach((actionName) => {
             const button = document.createElement('button');
-            button.innerHTML = svgIcons[action].icon;
+            const action = svgIcons[actionName];
+            button.innerHTML = actionName === 'Like' ? action.icon(image) : action.icon;
             button.style.color = 'white';
             button.style.background = 'transparent';
             button.style.border = 'none';
@@ -139,12 +161,15 @@ const addImage = async (image) => {
 
             buttonsDiv.appendChild(button);
 
-            if (action === 'More') {
-                button.id = `button-${image.id}`
-                button.addEventListener('click', svgIcons[action].onClick(button));
+            if (actionName === 'More') {
+                button.dataset.imageId = image.id;
+                button.addEventListener('click', svgIcons[actionName].onClick(button));
+            }
+            else if (actionName === 'Edit' || actionName === 'Like') {
+                button.addEventListener('click', svgIcons[actionName].onClick(image.id, button));
             }
             else {
-                button.addEventListener('click', svgIcons[action].onClick);
+                button.addEventListener('click', svgIcons[actionName].onClick);
             }
         });
 
@@ -180,7 +205,7 @@ export const placeImages = async (images) => {
 
     await Promise.all(imageLoadPromises);
     if (!state.hasMorePages) {
-        const loadingLabel = $('#loading');
+        const loadingLabel = document.getElementById('loading');
         loadingLabel.text('No more images')
         loadingLabel.show()
     }
@@ -220,8 +245,40 @@ export const loadImagesIfNeeded = async () => {
 };
 
 // resources/js/deleteHandler.js
-export function confirmDelete() {
-    const idOfImageToDelete = state.lastClickedButton
-    console.log(idOfImageToDelete)
+export async function confirmDelete() {
+    const idOfImageToDelete = state.lastClickedButton.dataset.imageId;
+
+    try {
+        const response = await fetch(`/images/${idOfImageToDelete}/destroy`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Laravel CSRF token
+            },
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            closePopup();
+            const dropdownTrigger = document.getElementById('dropdown-trigger');
+            dropdownTrigger.click();
+            const imageDiv = document.getElementById(idOfImageToDelete);
+            imageDiv.onclick = null;
+
+            // Remove all child elements
+            while (imageDiv.firstChild) {
+                imageDiv.removeChild(imageDiv.firstChild);
+            }
+
+            // Replace the content with a success message
+            imageDiv.innerHTML = '<p>Image deleted successfully.</p>';
+            // Optionally, remove the image from the DOM or update UI
+        } else {
+            console.error('Failed to delete image:', response.status, response.statusText);
+        }
+    } catch (error) {
+        console.error('Error during deletion:', error);
+    }
 }
+
 

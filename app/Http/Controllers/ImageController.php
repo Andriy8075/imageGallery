@@ -5,23 +5,40 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
+    protected $queries = [];
+
+    public function getQuery($query = 'default')
+    {
+        if ($query === 'liked') {
+            $userId = auth()->id(); // Get the user ID dynamically
+            return Image::join('image_user_likes', 'images.id', '=', 'image_user_likes.image_id')
+                ->where('image_user_likes.user_id', $userId)
+                ->select('images.*');
+        }
+        if ($query === 'uploaded') {
+            $userId = auth()->id();
+            return Image::where('user_id', $userId);
+        }
+
+        return Image::query();
+    }
+
     public function index(Request $request)
     {
-        $query = ['user_id', '!=', Auth::id()];
         $request->session()->put('images_page', 2);
-        $images = $this->getMoreImages(1, $query, false);
+        $images = $this->getMoreImages(1);
         return view('images.index', compact('images'));
     }
 
-    public function myImages(Request $request) {
-        $query = ['user_id', '=', Auth::id()];
-        $images = $this->getMoreImages(1, $query, true);
+    public function uploaded(Request $request) {
+        $images = $this->getMoreImages(1, 'uploaded');
         $request->session()->put('my_images_page', 2);
-        return view('my-images', compact('images'));
+        return view('images.uploaded', compact('images'));
     }
 
     public function show($id) {
@@ -76,6 +93,20 @@ class ImageController extends Controller
         return redirect()->route('images.show', $image);
     }
 
+    public function destroy(Image $image) {
+        $filePath = $image->file_path;
+        Storage::disk('images')->delete($filePath);
+        $image->delete();
+        return response()->json(['message' => 'Image deleted successfully']);
+    }
+
+    public function liked(Request $request)
+    {
+        $images = $this->getMoreImages(1, 'liked');
+        $request->session()->put('liked_images_page', 2);
+        return view('images.liked', compact('images'));
+    }
+
     public function loadMore(Request $request)
     {
         $page = $request->session()->get('images_page');
@@ -88,11 +119,10 @@ class ImageController extends Controller
         return response()->json($imagesData);
     }
 
-    public function loadMoreMine(Request $request)
+    public function loadMoreUploaded(Request $request)
     {
         $page = $request->session()->get('my_images_page');
-        $query = ['user_id', '=', Auth::id()];
-        $imagesData = $this->getMoreImages($page, $query);
+        $imagesData = $this->getMoreImages($page, 'uploaded');
 
         if ($imagesData['hasMorePages']) {
             $request->session()->put('my_images_page', $page + 1);
@@ -101,16 +131,25 @@ class ImageController extends Controller
         return response()->json($imagesData);
     }
 
-    private function getMoreImages($page, $query = null, $mine = false)
+    public function loadMoreLiked(Request $request)
     {
-        $queryBuilder = Image::query();
+        $page = $request->session()->get('liked_images_page');
+        Log::info('Current page:', ['page' => $page]);
+        $imagesData = $this->getMoreImages($page, 'liked');
 
-        if ($query) {
-            $queryBuilder->where(...$query);
+        if ($imagesData['hasMorePages']) {
+            $request->session()->put('liked_images_page', $page + 1);
         }
 
-        $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
+        return response()->json($imagesData);
+    }
 
+    private function getMoreImages($page, $query = 'default')
+    {
+        $queryBuilder = $this->getQuery($query);
+
+        $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
+        //dd(config('images.no_images_texts.mine'));
         return [
             'images' => $images->map(function ($image) {
                 $imagePath = storage_path('app/public/images/' . $image->file_path);
@@ -121,11 +160,28 @@ class ImageController extends Controller
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                     'id' => $image->id,
+                    'liked' => $this->isLiked($image),
                 ];
             }),
             'hasMorePages' => $images->hasMorePages(),
-            'mine' => $mine,
+            'query' => $query,
+            'no_images_text' => config('images.no_images_texts.' .($query)),
         ];
     }
 
+    protected function isLiked(Image $image, $userId = null) {
+        if(!$userId) $userId = auth()->id();
+        return $image->likedByUsers()->where('user_id', $userId)->exists();
+    }
+
+    public function like(Image $image) {
+        $userId = auth()->id();
+        if ($this->isLiked($image, $userId)) {
+            $image->likedByUsers()->detach($userId);
+            return response()->json(['liked' => false]);
+        }
+        $image->likedByUsers()->attach($userId);
+
+        return response()->json(['liked' => true]);
+    }
 }

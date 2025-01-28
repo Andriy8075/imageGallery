@@ -1,11 +1,12 @@
 <x-default-layout>
     @include('layouts.navigation')
     <div class="flex justify-center w-full pb-3">
-        <div class="flex flex-col w-1/3">
+        <div class="flex flex-col w-full xs:w-5/6 sm:w-3/4 md:w-2/3 lg:w-1/2 xl: px-4 xs:px-0">
             <form method="POST" action="{{ route('images.update', ['image' => $image]) }}" enctype="multipart/form-data" class="w-full">
                 @csrf
                 @method('PATCH')
 
+{{--                @include('images.components.create-edit-title')--}}
                 <div>
                     <x-input-label for="title" :value="__('Title')" />
                     <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="$image->title"/>
@@ -14,8 +15,8 @@
 
                 <div class="mt-4">
                     <x-input-label for="description" :value="__('Description')" />
-                    <x-text-input id="description" class="block mt-1 w-full" type="text" name="description" :value="$image->description"/>
-                    <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                    <x-textarea-input id="description" class="block mt-1 w-full" type="text" name="description" :value="$image->description"/>
+                    <x-input-error :messages="$errors->get('description')" class="mt-2 " />
                 </div>
 
                 <div id="imagePreview" class="mt-4">

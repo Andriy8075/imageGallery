@@ -41,8 +41,12 @@ class ImageController extends Controller
         return view('images.uploaded', compact('images'));
     }
 
-    public function show($id) {
-        $image = Image::findOrFail($id);
+    public function show($id)
+    {
+        // Fetch the image along with its comments
+        $image = Image::with('comments')->findOrFail($id);
+
+        // Pass both image and comments to the view
         return view('images.show', compact('image'));
     }
 

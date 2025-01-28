@@ -42,7 +42,7 @@
         </div>
     </div>
 </div>
-<div class="p-5 sm:p-8">
+<div class="px-1 sm:px-3">
     <div id="image-container" class="image-container flex">
     </div>
 </div>
@@ -55,7 +55,8 @@
         images: @json($images),
         imageLoadingConfig: @json(config('images')),
         loadMoreUrl: "{{ url(config('images.load_urls.' . ($images['query']))) }}",
-        {{--noImagesMessage: "{{ html_entity_decode(config('images.no_images_texts.' . ($images['query']))) }}",--}}
+        indexUrl: "{{url('/')}}",
+        logged: {{ Auth::check() ? 'true' : 'false' }},
         query: "{{$images['query']}}",
     };
 

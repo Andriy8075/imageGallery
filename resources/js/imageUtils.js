@@ -34,29 +34,34 @@ const svgIcons = {
         },
         onClick: function(imageId, likeButton) {
             return async function() {
-                try {
-                    const response = await fetch(`/images/${imageId}/like`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                    });
-                    if (!response.ok) {
-                        throw new Error('Failed to like the image.');
-                    }
+                if(!initialData.logged) {
+                    window.location.href = `${initialData.indexUrl}/login`
+                }
+                else {
+                    try {
+                        const response = await fetch(`/images/${imageId}/like`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to like the image.');
+                        }
 
-                    const result = await response.json();
-                    const likeButtonPath = likeButton.querySelector('path');
+                        const result = await response.json();
+                        const likeButtonPath = likeButton.querySelector('path');
 
-                    if (result.liked) {
-                        likeButtonPath.setAttribute('fill', 'red')
+                        if (result.liked) {
+                            likeButtonPath.setAttribute('fill', 'red')
+                        }
+                        else {
+                            likeButtonPath.setAttribute('fill', 'white')
+                        }
+                    } catch (error) {
+                        console.error("An error occurred:", error);
                     }
-                    else {
-                        likeButtonPath.setAttribute('fill', 'white')
-                    }
-                } catch (error) {
-                    console.error("An error occurred:", error);
                 }
             }
         }
@@ -131,7 +136,11 @@ const addImage = async (image) => {
         const imgElement = document.createElement('img');
 
         imgElement.src = image.url;
+        imgElement.addEventListener('click', () => {
+            window.location.href=`${initialData.indexUrl}/images/${image.id}`;
+        })
         imgElement.classList.add('image-item');
+        imgElement.style.cursor = 'pointer';
         imageDiv.appendChild(imgElement);
 
         const buttonsDiv = document.createElement('div');
@@ -258,7 +267,6 @@ export async function confirmDelete() {
         });
 
         if (response.ok) {
-            const result = await response.json();
             closePopup();
             const dropdownTrigger = document.getElementById('dropdown-trigger');
             dropdownTrigger.click();

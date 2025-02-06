@@ -14,7 +14,17 @@ class CommentController extends Controller
         // Validate the incoming request
 
         $validated = $request->validate([
-            'text' => 'required|string|max:1000',
+            'text' => [
+                'required',
+                'string',
+                'max:4096',
+                function ($attribute, $value, $fail) {
+                    $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                    if ($lineCount > 20) {
+                        $fail('The text must have fewer than 20 lines.');
+                    }
+                },
+            ],
         ]);
         // Find the image using the image ID passed in the route
         Image::findOrFail($imageId);

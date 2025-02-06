@@ -18,11 +18,10 @@ const findShortestColumn = () => {
 };
 
 const resizeImage = (img) => {
-    const maxWidth = initialData.imageLoadingConfig.image_max_width;
     const aspectRatio = img.naturalWidth / img.naturalHeight;
 
-    img.width = maxWidth;
-    img.height = Math.round(maxWidth / aspectRatio);
+    img.width = initialData.imageMaxWidth;
+    img.height = Math.round(initialData.imageMaxWidth / aspectRatio);
 };
 
 const svgIcons = {
@@ -213,10 +212,10 @@ export const placeImages = async (images) => {
     }
 
     await Promise.all(imageLoadPromises);
-    if (!state.hasMorePages) {
+    if (!state.hasMorePages.images) {
         const loadingLabel = document.getElementById('loading');
-        loadingLabel.text('No more images')
-        loadingLabel.show()
+        loadingLabel.innerText = 'No more images'
+        loadingLabel.style.display = 'block'
     }
 }
 
@@ -229,31 +228,17 @@ export const loadMoreImages = async () => {
         const data = await response.json();
 
         if (data.images) {
-            state.hasMorePages = data.hasMorePages;
-            await placeImages(data.images);
+            state.hasMorePages.images = data.hasMorePages.images;
+            await placeImages(data.images.images);
         }
     } catch (error) {
         console.error('Error fetching images:', error);
     } finally {
-        if (state.hasMorePages) loadingLabel.style.display = 'none';
+        if (state.hasMorePages.images) loadingLabel.style.display = 'none';
         else loadingLabel.textContent = 'No more images'
     }
 };
 
-export const loadImagesIfNeeded = async () => {
-    while (true) {
-        const documentHeight = document.documentElement.scrollHeight;
-        const windowHeight = window.innerHeight;
-
-        if (documentHeight <= windowHeight && state.hasMorePages) {
-            await loadMoreImages();
-        } else {
-            break;
-        }
-    }
-};
-
-// resources/js/deleteHandler.js
 export async function confirmDelete() {
     const idOfImageToDelete = state.lastClickedButton.dataset.imageId;
 

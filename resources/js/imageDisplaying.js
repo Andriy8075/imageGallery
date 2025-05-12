@@ -1,8 +1,12 @@
 import {
     placeImages,
     confirmDelete,
-    addListenersToLoadMore, loadMoreImages
+    loadMoreImages
 } from './imageUtils.js';
+
+import {
+    addListenersToLoadMore
+} from "./loadingUtils.js";
 
 import {
     state,

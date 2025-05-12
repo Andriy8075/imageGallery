@@ -42,7 +42,7 @@
         </div>
     </div>
 </div>
-<div class="p-5 sm:p-8">
+<div class="px-1 sm:px-3">
     <div id="image-container" class="image-container flex">
     </div>
 </div>
@@ -51,19 +51,25 @@
     Loading more images...
 </div>
 <script>
+    const imageConfigs = @json(config('images'));
+    const imagesResponse = @json($images);
+    const { query } = imagesResponse;
+
     const initialData = {
-        images: @json($images),
-        imageLoadingConfig: @json(config('images')),
+        images: imagesResponse,
+        imageMaxWidth: imageConfigs.image_max_width,
+        scrollThreshold: imageConfigs.scroll_threshold,
+        noImagesText: imageConfigs.query,
         loadMoreUrl: "{{ url(config('images.load_urls.' . ($images['query']))) }}",
-        {{--noImagesMessage: "{{ html_entity_decode(config('images.no_images_texts.' . ($images['query']))) }}",--}}
-        query: "{{$images['query']}}",
+        indexUrl: "{{url('/')}}",
+        logged: {{ Auth::check() ? 'true' : 'false' }},
+        query,
     };
 
     function openPopup() {
         document.getElementById('popup').classList.remove('hidden');
     }
 
-    // Function to close the popup
     function closePopup() {
         document.getElementById('popup').classList.add('hidden');
     }

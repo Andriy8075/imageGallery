@@ -18,11 +18,10 @@ const findShortestColumn = () => {
 };
 
 const resizeImage = (img) => {
-    const maxWidth = initialData.imageLoadingConfig.image_max_width;
     const aspectRatio = img.naturalWidth / img.naturalHeight;
 
-    img.width = maxWidth;
-    img.height = Math.round(maxWidth / aspectRatio);
+    img.width = initialData.imageMaxWidth;
+    img.height = Math.round(initialData.imageMaxWidth / aspectRatio);
 };
 
 const svgIcons = {
@@ -34,29 +33,34 @@ const svgIcons = {
         },
         onClick: function(imageId, likeButton) {
             return async function() {
-                try {
-                    const response = await fetch(`/images/${imageId}/like`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                    });
-                    if (!response.ok) {
-                        throw new Error('Failed to like the image.');
-                    }
+                if(!initialData.logged) {
+                    window.location.href = `${initialData.indexUrl}/login`
+                }
+                else {
+                    try {
+                        const response = await fetch(`/images/${imageId}/like`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to like the image.');
+                        }
 
-                    const result = await response.json();
-                    const likeButtonPath = likeButton.querySelector('path');
+                        const result = await response.json();
+                        const likeButtonPath = likeButton.querySelector('path');
 
-                    if (result.liked) {
-                        likeButtonPath.setAttribute('fill', 'red')
+                        if (result.liked) {
+                            likeButtonPath.setAttribute('fill', 'red')
+                        }
+                        else {
+                            likeButtonPath.setAttribute('fill', 'white')
+                        }
+                    } catch (error) {
+                        console.error("An error occurred:", error);
                     }
-                    else {
-                        likeButtonPath.setAttribute('fill', 'white')
-                    }
-                } catch (error) {
-                    console.error("An error occurred:", error);
                 }
             }
         }
@@ -131,7 +135,11 @@ const addImage = async (image) => {
         const imgElement = document.createElement('img');
 
         imgElement.src = image.url;
+        imgElement.addEventListener('click', () => {
+            window.location.href=`${initialData.indexUrl}/images/${image.id}`;
+        })
         imgElement.classList.add('image-item');
+        imgElement.style.cursor = 'pointer';
         imageDiv.appendChild(imgElement);
 
         const buttonsDiv = document.createElement('div');
@@ -204,10 +212,10 @@ export const placeImages = async (images) => {
     }
 
     await Promise.all(imageLoadPromises);
-    if (!state.hasMorePages) {
+    if (!state.hasMorePages.images) {
         const loadingLabel = document.getElementById('loading');
-        loadingLabel.text('No more images')
-        loadingLabel.show()
+        loadingLabel.innerText = 'No more images'
+        loadingLabel.style.display = 'block'
     }
 }
 
@@ -220,31 +228,17 @@ export const loadMoreImages = async () => {
         const data = await response.json();
 
         if (data.images) {
-            state.hasMorePages = data.hasMorePages;
-            await placeImages(data.images);
+            state.hasMorePages.images = data.hasMorePages.images;
+            await placeImages(data.images.images);
         }
     } catch (error) {
         console.error('Error fetching images:', error);
     } finally {
-        if (state.hasMorePages) loadingLabel.style.display = 'none';
+        if (state.hasMorePages.images) loadingLabel.style.display = 'none';
         else loadingLabel.textContent = 'No more images'
     }
 };
 
-export const loadImagesIfNeeded = async () => {
-    while (true) {
-        const documentHeight = document.documentElement.scrollHeight;
-        const windowHeight = window.innerHeight;
-
-        if (documentHeight <= windowHeight && state.hasMorePages) {
-            await loadMoreImages();
-        } else {
-            break;
-        }
-    }
-};
-
-// resources/js/deleteHandler.js
 export async function confirmDelete() {
     const idOfImageToDelete = state.lastClickedButton.dataset.imageId;
 
@@ -258,7 +252,6 @@ export async function confirmDelete() {
         });
 
         if (response.ok) {
-            const result = await response.json();
             closePopup();
             const dropdownTrigger = document.getElementById('dropdown-trigger');
             dropdownTrigger.click();

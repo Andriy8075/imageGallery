@@ -2,7 +2,8 @@
 
 return [
     'images_per_load' => 20,
-    'image_max_width' => 300,
+    'image_max_width' => 300, // in px
+    'scroll_threshold' => 500, //in px
     'load_urls' => [
         'default' => '/images/load-more',
         'uploaded' => '/images/load-more-uploaded',

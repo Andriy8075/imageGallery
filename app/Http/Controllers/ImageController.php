@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\comment;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
@@ -41,9 +42,28 @@ class ImageController extends Controller
         return view('images.uploaded', compact('images'));
     }
 
-    public function show($id) {
+    public function show(Request $request, $id)
+    {
+        // Fetch the image
         $image = Image::findOrFail($id);
-        return view('images.show', compact('image'));
+
+        // Paginate the comments
+        $comments = $image->comments()->paginate(10);
+        $request->session()->put('comments_page', 2);
+
+        // Pass both image and paginated comments to the view
+        return view('images.show', compact('image', 'comments'));
+    }
+
+    public function loadMoreComments(Request $request) {
+        $page = $request->session()->get('comments_page');
+        $comments = Comment::paginate($page);
+
+        if ($comments->hasMorePages()) {
+            $request->session()->put('comments_page', $page + 1);
+        }
+
+        return response()->json($comments);
     }
 
     public function create() {
@@ -53,7 +73,19 @@ class ImageController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'max:128|string|nullable',
-            'description' => 'max:4096|string|nullable',
+            'description' => [
+                'max:4096',
+                'string',
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (!empty($value)) { // Ensure value is not null
+                        $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                        if ($lineCount > 20) {
+                            $fail('The description must have fewer than 20 lines.');
+                        }
+                    }
+                },
+            ],
             'image' => 'image|max:16384|required',
         ]);
 
@@ -80,7 +112,19 @@ class ImageController extends Controller
         // Validate only the title and description
         $request->validate([
             'title' => 'max:128|string|nullable',
-            'description' => 'max:4096|string|nullable',
+            'description' => [
+                'max:4096',
+                'string',
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (!empty($value)) { // Ensure value is not null
+                        $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                        if ($lineCount > 20) {
+                            $fail('The description must have fewer than 20 lines.');
+                        }
+                    }
+                },
+            ],
         ]);
 
         // Update the image's title and description
@@ -149,7 +193,6 @@ class ImageController extends Controller
         $queryBuilder = $this->getQuery($query);
 
         $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
-        //dd(config('images.no_images_texts.mine'));
         return [
             'images' => $images->map(function ($image) {
                 $imagePath = storage_path('app/public/images/' . $image->file_path);
@@ -165,7 +208,6 @@ class ImageController extends Controller
             }),
             'hasMorePages' => $images->hasMorePages(),
             'query' => $query,
-            'no_images_text' => config('images.no_images_texts.' .($query)),
         ];
     }
 

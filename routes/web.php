@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureImageOwner;
 use Illuminate\Support\Facades\Route;
@@ -22,16 +23,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
     Route::post('/images/create', [ImageController::class, 'store'])->name('images.store');
     Route::get('/images/liked', [ImageController::class, 'liked'])->name('images.liked');
+    Route::post('/images/{image}/like', [ImageController::class, 'like'])->name('images.like');
     Route::get('/images/load-more-uploaded', [ImageController::class, 'loadMoreUploaded'])->name('images.load-more-uploaded');
     Route::get('/images/load-more-liked', [ImageController::class, 'loadMoreLiked'])->name('images.load-more');
 });
 Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
-Route::post('/images/{image}/like', [ImageController::class, 'like'])->middleware('auth')->name('images.like');
 Route::middleware(['auth', EnsureImageOwner::class])->group(function () {
     Route::get('/images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit');
     Route::patch('/images/{image}/update', [ImageController::class, 'update'])->name('images.update');
     Route::delete('/images/{image}/destroy', [ImageController::class, 'destroy'])->name('images.destroy');
 });
+
+Route::post('/comments/{imageId}', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
 
 Route::get('/alpine-test', function () {
     return view('alpine-test');

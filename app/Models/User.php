@@ -51,4 +51,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Image::class, 'image_user_likes')
             ->withTimestamps(); // Tracks when the like occurred
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

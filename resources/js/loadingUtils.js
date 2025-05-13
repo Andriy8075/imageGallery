@@ -1,4 +1,4 @@
-import {state} from "@/state.js";
+import {state} from "./state.js";
 
 const userInTheBottom = () => {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -13,10 +13,8 @@ const userInTheBottom = () => {
 }
 
 async function triggerLoadMore (loadFunction, isLoadingField) {
-    const loadings = state.isLoading;
-    console.log('user in bottom', userInTheBottom())
-    console.log('has more pages', state.hasMorePages[isLoadingField])
-    console.log('not loading', !loadings[isLoadingField])
+    const loadings = state.loading;
+    console.log('real images field', state.hasMorePages['images'])
     if (userInTheBottom() && state.hasMorePages[isLoadingField] && !loadings[isLoadingField]) {
         loadings[isLoadingField] = true;
         await loadFunction();

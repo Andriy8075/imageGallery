@@ -5,7 +5,7 @@ export const state = {
         comments: false,
     },
     lastClickedButton: null,
-    isLoading: {
+    loading: {
         comments: false,
         images: false,
     }

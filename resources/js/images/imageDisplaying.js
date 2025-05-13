@@ -6,11 +6,11 @@ import {
 
 import {
     addListenersToLoadMore
-} from "./loadingUtils.js";
+} from "../loadingUtils.js";
 
 import {
     state,
-} from './state.js';
+} from '../state.js';
 
 const windowWidth = window.innerWidth
 const countOfCols = Math.ceil(windowWidth/initialData.imageMaxWidth)
@@ -23,8 +23,9 @@ for (let i = 0; i<countOfCols; i++) {
     const imageContainer = document.getElementById('image-container')
     imageContainer.appendChild(colDiv);
 }
-
-state.hasMorePages = initialData.images.hasMorePages;
+console.log('has more pages', initialData.images.hasMorePages);
+state.hasMorePages.images = initialData.images.hasMorePages;
+console.log("after assigning", state.hasMorePages.images)
 document.addEventListener('DOMContentLoaded', async () => {
     const images = initialData.images.images;
 
@@ -34,9 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingLabel.style.display = 'block';
         return;
     }
-
+    console.log("before placing images", state.hasMorePages.images)
     await placeImages(images);
-
     addListenersToLoadMore('images', loadMoreImages)
 });
 

@@ -128,16 +128,13 @@ export const loadMoreImages = async () => {
     try {
         const response = await fetch(initialData.loadMoreUrl, { method: 'GET' });
         const data = await response.json();
-
         if (data.images) {
-            console.log("data images", data.images)
-            state.hasMorePages.images = data.hasMorePages.images;
-            await placeImages(data.images.images);
+            state.hasMorePages.images = data.hasMorePages;
+            await placeImages(data.images);
         }
     } catch (error) {
         console.error('Error fetching images:', error);
     } finally {
-        console.log(4444)
         if (state.hasMorePages.images) loadingLabel.style.display = 'none';
         else loadingLabel.textContent = 'No more images'
     }

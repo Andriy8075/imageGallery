@@ -26,7 +26,9 @@ class ImageController extends Controller
             return Image::where('user_id', $userId);
         }
 
-        return Image::query();
+        return Image::query()->withExists(['likedByUsers as is_liked' => function ($query) {
+            $query->where('user_id', auth()->id());
+        }]);
     }
 
     public function index(Request $request)
@@ -151,7 +153,7 @@ class ImageController extends Controller
         return view('images.liked', compact('images'));
     }
 
-    public function loadMore(Request $request)
+    public function loadMoreAny(Request $request)
     {
         $page = $request->session()->get('images_page');
         $imagesData = $this->getMoreImages($page);
@@ -203,7 +205,7 @@ class ImageController extends Controller
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                     'id' => $image->id,
-                    'liked' => $this->isLiked($image),
+                    'is_liked' => $image->isLiked,
                 ];
             }),
             'hasMorePages' => $images->hasMorePages(),

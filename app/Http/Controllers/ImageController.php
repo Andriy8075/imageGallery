@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\comment;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +10,7 @@ class ImageController extends Controller
 {
     protected $queries = [];
 
-    public function getQuery($query = 'default')
+    public function getQuery($query = 'default', $params = [])
     {
         if ($query === 'liked') {
             $userId = auth()->id(); // Get the user ID dynamically
@@ -22,6 +21,10 @@ class ImageController extends Controller
         if ($query === 'uploaded') {
             $userId = auth()->id();
             return Image::where('user_id', $userId);
+        }
+        if ($query === 'search') {
+            return Image::where('title', 'like', '%' . $params["userQuery"] . '%')
+                ->orWhere('description', 'like', '%' . $params["userQuery"] . '%');
         }
 
         return Image::query()->withExists(['likedByUsers as liked' => function ($query) {
@@ -174,9 +177,22 @@ class ImageController extends Controller
         return response()->json($imagesData);
     }
 
-    private function getMoreImages($page, $query = 'default')
+    public function loadMoreSearch(Request $request)
     {
-        $queryBuilder = $this->getQuery($query);
+        $validated = $request->validate([
+            'page' => 'required|integer|min:1'
+        ]);
+        $input = $request->input('search');
+        $page = $validated['page'];
+        $imagesData = $this->getMoreImages($page, 'search', ["userQuery" => $input]);
+
+        $imagesData['nextPage'] = $imagesData['hasMorePages'] ? $page+1 : 0;
+        return response()->json($imagesData);
+    }
+
+    private function getMoreImages($page, $query = 'default', $paramsForQuery = [])
+    {
+        $queryBuilder = $this->getQuery($query, $paramsForQuery);
 
         $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
         if ($query === 'liked') {
@@ -216,5 +232,11 @@ class ImageController extends Controller
         $image->likedByUsers()->attach($userId);
 
         return response()->json(['liked' => true]);
+    }
+    public function search(Request $request)
+    {
+        $input = $request->input('search');
+        $images = $this->getMoreImages(1, 'search', ["userQuery" => $input]);
+        return view('images.search', compact('images'));
     }
 }

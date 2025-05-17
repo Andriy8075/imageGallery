@@ -9,6 +9,7 @@ return [
         'uploaded' => '/images/load-more-uploaded',
         'liked' => '/images/load-more-liked',
         'comments' => '/comments/load-more',
+        'search' => '/images/load-more-search',
     ],
     'no_images_texts' => [
         'default' => 'No images suitable for your search',

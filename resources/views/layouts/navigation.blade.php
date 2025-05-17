@@ -15,9 +15,11 @@
         </a>
     </div>
 
-    <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-3 py-2 mx-4">
-        <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-sm w-full">
-    </div>
+    <form method="GET" action="{{ route('images.search')}}">
+        <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-3 py-2 mx-4">
+            <input type="text" placeholder="Search..." name="search" class="bg-transparent border-none outline-none text-sm w-full">
+        </div>
+    </form>
     @guest
         @if (Route::has('login'))
             <nav class=" flex flex-1 justify-end px-10 py-4">

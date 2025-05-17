@@ -6,22 +6,19 @@
         Dropdown
     </button>
 
-    <!-- Dropdown -->
-    <div x-show="show" id="dropdown"
-         class="absolute mt-2 bg-white border border-gray-200 rounded-md z-10"
-         @click.outside="show = false"
-         x-cloak>
-        <div class="py-1">
-            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                Copy link to this image
-            </a>
-            @if($images['query'] === 'uploaded')
-                <a onclick="openPopup()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                    Delete
-                </a>
+{{--    <!-- Dropdown -->--}}
+{{--    <div x-show="show" id="dropdown"--}}
+{{--         class="absolute mt-2 bg-white border border-gray-200 rounded-md z-10"--}}
+{{--         @click.outside="show = false"--}}
+{{--         x-cloak>--}}
+{{--        <div class="py-1">--}}
+{{--            @if($images['query'] === 'uploaded')--}}
+{{--                <a onclick="openPopup()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">--}}
+{{--                    Delete--}}
+{{--                </a>--}}
 
-                <!-- Popup Modal -->
-                <div id="popup" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+{{--                <!-- Popup Modal -->--}}
+                <div id="popup" class="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 hidden">
                     <div class="bg-white rounded-lg shadow-lg p-6 w-80">
                         <p class="text-lg font-medium text-gray-900">Delete this image?</p>
                         <div class="flex justify-end mt-4 space-x-4">
@@ -34,13 +31,13 @@
                         </div>
                     </div>
                 </div>
-            @else
-                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                    Report
-                </a>
-            @endif
-        </div>
-    </div>
+{{--            @else--}}
+{{--                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">--}}
+{{--                    Report--}}
+{{--                </a>--}}
+{{--            @endif--}}
+{{--        </div>--}}
+{{--    </div>--}}
 </div>
 <div class="px-1 sm:px-3">
     <div id="image-container" class="image-container flex">

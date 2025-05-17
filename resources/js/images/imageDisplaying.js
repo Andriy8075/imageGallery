@@ -12,6 +12,10 @@ import {
     state,
 } from '../state.js';
 
+if(initialData.images.length === 0) {
+
+}
+
 const windowWidth = window.innerWidth
 const countOfCols = Math.ceil(windowWidth/initialData.imageMaxWidth)
 for (let i = 0; i<countOfCols; i++) {

@@ -8,7 +8,7 @@ use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Debugbar;
 class ImageController extends Controller
 {
     protected $queries = [];
@@ -17,16 +17,16 @@ class ImageController extends Controller
     {
         if ($query === 'liked') {
             $userId = auth()->id(); // Get the user ID dynamically
-            return Image::join('image_user_likes', 'images.id', '=', 'image_user_likes.image_id')
-                ->where('image_user_likes.user_id', $userId)
-                ->select('images.*');
+            return Image::whereHas('likedByUsers', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            });
         }
         if ($query === 'uploaded') {
             $userId = auth()->id();
             return Image::where('user_id', $userId);
         }
 
-        return Image::query()->withExists(['likedByUsers as is_liked' => function ($query) {
+        return Image::query()->withExists(['likedByUsers as liked' => function ($query) {
             $query->where('user_id', auth()->id());
         }]);
     }
@@ -195,17 +195,22 @@ class ImageController extends Controller
         $queryBuilder = $this->getQuery($query);
 
         $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
+        if ($query === 'liked') {
+            $images->map(function ($image) {
+                $image->liked = true;
+                return $image;
+            });
+        }
         return [
             'images' => $images->map(function ($image) {
                 $imagePath = storage_path('app/public/images/' . $image->file_path);
                 $imageSize = getimagesize($imagePath);
-
                 return [
                     'url' => url('storage/images/' . $image->file_path),
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                     'id' => $image->id,
-                    'is_liked' => $image->isLiked,
+                    'liked' => $image->liked,
                 ];
             }),
             'hasMorePages' => $images->hasMorePages(),

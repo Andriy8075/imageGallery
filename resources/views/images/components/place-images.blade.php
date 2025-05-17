@@ -59,7 +59,7 @@
         images: imagesResponse,
         imageMaxWidth: imageConfigs.image_max_width,
         scrollThreshold: imageConfigs.scroll_threshold,
-        noImagesText: imageConfigs.query,
+        noImagesText: imageConfigs.no_images_texts[query],
         loadMoreUrl: "{{ url(config('images.load_urls.' . ($images['query']))) }}",
         indexUrl: "{{url('/')}}",
         logged: {{ Auth::check() ? 'true' : 'false' }},

@@ -6,9 +6,7 @@ use App\Models\comment;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
 class ImageController extends Controller
 {
     protected $queries = [];
@@ -17,28 +15,28 @@ class ImageController extends Controller
     {
         if ($query === 'liked') {
             $userId = auth()->id(); // Get the user ID dynamically
-            return Image::join('image_user_likes', 'images.id', '=', 'image_user_likes.image_id')
-                ->where('image_user_likes.user_id', $userId)
-                ->select('images.*');
+            return Image::whereHas('likedByUsers', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            });
         }
         if ($query === 'uploaded') {
             $userId = auth()->id();
             return Image::where('user_id', $userId);
         }
 
-        return Image::query();
+        return Image::query()->withExists(['likedByUsers as liked' => function ($query) {
+            $query->where('user_id', auth()->id());
+        }]);
     }
 
     public function index(Request $request)
     {
-        $request->session()->put('images_page', 2);
         $images = $this->getMoreImages(1);
         return view('images.index', compact('images'));
     }
 
     public function uploaded(Request $request) {
         $images = $this->getMoreImages(1, 'uploaded');
-        $request->session()->put('my_images_page', 2);
         return view('images.uploaded', compact('images'));
     }
 
@@ -48,22 +46,13 @@ class ImageController extends Controller
         $image = Image::findOrFail($id);
 
         // Paginate the comments
-        $comments = $image->comments()->paginate(10);
+        $comments = $image->comments()->with('user')->paginate(10);
+        $nextPage = $comments->hasMorePages() ? 2 : 0;
         $request->session()->put('comments_page', 2);
+        $imageId = $id;
 
         // Pass both image and paginated comments to the view
-        return view('images.show', compact('image', 'comments'));
-    }
-
-    public function loadMoreComments(Request $request) {
-        $page = $request->session()->get('comments_page');
-        $comments = Comment::paginate($page);
-
-        if ($comments->hasMorePages()) {
-            $request->session()->put('comments_page', $page + 1);
-        }
-
-        return response()->json($comments);
+        return view('images.show', compact('image', 'comments', 'nextPage', 'imageId'));
     }
 
     public function create() {
@@ -147,44 +136,41 @@ class ImageController extends Controller
     public function liked(Request $request)
     {
         $images = $this->getMoreImages(1, 'liked');
-        $request->session()->put('liked_images_page', 2);
         return view('images.liked', compact('images'));
     }
 
-    public function loadMore(Request $request)
+    public function loadMoreAny(Request $request)
     {
-        $page = $request->session()->get('images_page');
+        $validated = $request->validate([
+            'page' => 'required|integer|min:1'
+        ]);
+        $page = $validated['page'];
         $imagesData = $this->getMoreImages($page);
 
-        if ($imagesData['hasMorePages']) {
-            $request->session()->put('images_page', $page + 1);
-        }
-
+        $imagesData['nextPage'] = $imagesData['hasMorePages'] ? $page+1 : 0;
         return response()->json($imagesData);
     }
 
     public function loadMoreUploaded(Request $request)
     {
-        $page = $request->session()->get('my_images_page');
+        $validated = $request->validate([
+            'page' => 'required|integer|min:1'
+        ]);
+        $page = $validated['page'];
         $imagesData = $this->getMoreImages($page, 'uploaded');
-
-        if ($imagesData['hasMorePages']) {
-            $request->session()->put('my_images_page', $page + 1);
-        }
-
+        $imagesData['nextPage'] = $imagesData['hasMorePages'] ? $page+1 : 0;
         return response()->json($imagesData);
     }
 
     public function loadMoreLiked(Request $request)
     {
-        $page = $request->session()->get('liked_images_page');
-        Log::info('Current page:', ['page' => $page]);
+        $validated = $request->validate([
+            'page' => 'required|integer|min:1'
+        ]);
+        $page = $validated['page'];
         $imagesData = $this->getMoreImages($page, 'liked');
 
-        if ($imagesData['hasMorePages']) {
-            $request->session()->put('liked_images_page', $page + 1);
-        }
-
+        $imagesData['nextPage'] = $imagesData['hasMorePages'] ? $page+1 : 0;
         return response()->json($imagesData);
     }
 
@@ -193,17 +179,22 @@ class ImageController extends Controller
         $queryBuilder = $this->getQuery($query);
 
         $images = $queryBuilder->paginate(config('image_loading.images_per_load'), ['*'], 'page', $page);
+        if ($query === 'liked') {
+            $images->map(function ($image) {
+                $image->liked = true;
+                return $image;
+            });
+        }
         return [
             'images' => $images->map(function ($image) {
                 $imagePath = storage_path('app/public/images/' . $image->file_path);
                 $imageSize = getimagesize($imagePath);
-
                 return [
                     'url' => url('storage/images/' . $image->file_path),
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                     'id' => $image->id,
-                    'liked' => $this->isLiked($image),
+                    'liked' => $image->liked,
                 ];
             }),
             'hasMorePages' => $images->hasMorePages(),

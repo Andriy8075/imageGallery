@@ -25,24 +25,15 @@
     </div>
 
     <div id="comments-div" class="m-12 mb-24">
-{{--        @foreach ($comments as $comment)--}}
-{{--            <div class="m-4">--}}
-{{--                <strong class="text-2xl">{{ $comment->user->name }}:</strong> <!-- Assuming the comment has a user relationship -->--}}
-{{--                <p class="text-xl break-words">{!! nl2br(e($comment->text)) !!}</p>--}}
-{{--            </div>--}}
-{{--        @endforeach--}}
     </div>
     <script>
         const initialData = {
             scrollThreshold: @json(config('comments.scroll_threshold')),
             textArea: document.getElementById('textarea'),
-            comments: @json($comments->map(function ($comment) {
-                return [
-                    'name' => $comment->user->name,
-                    'text' => $comment->text
-                ];
-            })),
-            hasMorePages: "{{$comments->hasMorePages()}}",
+            comments: @json($comments).data,
+            nextPage: @json($nextPage),
+            imageId: @json($imageId),
+            loadMoreUrl: "{{config('images.load_urls.comments')}}",
             @auth
                 storeURL: "{{ route('comments.store', $image->id) }}",
                 authUserName: "{{ auth()->user()->name }}",
@@ -52,40 +43,9 @@
         }
     </script>
     @auth
-        @vite('resources/js/addCommentsAuth.js')
+        @vite('resources/js/comments/addCommentsAuth.js')
     @else
-        @vite('resources/js/addCommentsGuest.js')
+        @vite('resources/js/comments/addCommentsGuest.js')
     @endauth
-
-    @vite('resources/js/loadComments.js')
-{{--    <script>--}}
-{{--        const textarea = document.getElementById('textarea');--}}
-{{--    </script>--}}
-{{--    @auth--}}
-{{--        <script>--}}
-{{--            const initialData = {--}}
-{{--                storeURL: "{{ route('comments.store', $image->id) }}",--}}
-{{--                authUserName: "{{ auth()->user()->name }}",--}}
-{{--            }--}}
-{{--        </script>--}}
-{{--        @vite('resources/js/addCommentsAuth.js')--}}
-{{--    @else--}}
-{{--        <script>--}}
-{{--            const initialData = {--}}
-{{--                loginURL: "{{ route('login', ['redirect' => request()->fullUrl()]) }}",--}}
-{{--            }--}}
-{{--        </script>--}}
-{{--        @vite('resources/js/addCommentsGuest.js')--}}
-{{--    @endauth--}}
-
-{{--    <script>--}}
-{{--        const comments = @json($comments->map(function ($comment) {--}}
-{{--        return [--}}
-{{--            'name' => $comment->user->name,--}}
-{{--            'text' => $comment->text--}}
-{{--    ];--}}
-{{--    }));--}}
-{{--        --}}
-{{--    </script>--}}
-{{--    @vite('resources/js/loadComments.js')--}}
+    @vite('resources/js/comments/loadComments.js')
 </x-default-layout>

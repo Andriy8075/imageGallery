@@ -1,9 +1,6 @@
 export const state = {
     isMobile: (navigator.maxTouchPoints > 0),
-    hasMorePages: {
-        images: false,
-        comments: false,
-    },
+    nextPage: 0,
     lastClickedButton: null,
     loading: {
         comments: false,

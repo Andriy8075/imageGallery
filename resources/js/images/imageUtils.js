@@ -114,7 +114,7 @@ export const placeImages = async (images) => {
     }
 
     await Promise.all(imageLoadPromises);
-    if (!state.hasMorePages.images) {
+    if (!state.nextPage) {
         const loadingLabel = document.getElementById('loading');
         loadingLabel.innerText = 'No more images'
         loadingLabel.style.display = 'block'
@@ -126,16 +126,17 @@ export const loadMoreImages = async () => {
     loadingLabel.style.display = 'block'
 
     try {
-        const response = await fetch(initialData.loadMoreUrl, { method: 'GET' });
+        const fullURL = `${initialData.loadMoreUrl}?page=${state.nextPage}`
+        const response = await fetch(fullURL, { method: 'GET' });
         const data = await response.json();
         if (data.images) {
-            state.hasMorePages.images = data.hasMorePages;
+            state.nextPage = data.nextPage;
             await placeImages(data.images);
         }
     } catch (error) {
         console.error('Error fetching images:', error);
     } finally {
-        if (state.hasMorePages.images) loadingLabel.style.display = 'none';
+        if (state.nextPage) loadingLabel.style.display = 'none';
         else loadingLabel.textContent = 'No more images'
     }
 };

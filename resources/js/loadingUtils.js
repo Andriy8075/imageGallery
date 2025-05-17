@@ -12,7 +12,7 @@ const userInTheBottom = () => {
 
 async function triggerLoadMore (loadFunction, isLoadingField) {
     const loadings = state.loading;
-    if (userInTheBottom() && state.hasMorePages[isLoadingField] && !loadings[isLoadingField]) {
+    if (userInTheBottom() && state.nextPage && !loadings[isLoadingField]) {
         loadings[isLoadingField] = true;
         await loadFunction();
         loadings[isLoadingField] = false;

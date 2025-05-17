@@ -4,7 +4,6 @@ import {state} from "@/state.js";
 import {addListenersToLoadMore} from "@/loadingUtils.js";
 
 const commentsDiv = document.getElementById("comments-div");
-
 function placeComments(comments) {
     for (const comment of comments) {
         const commentDiv = document.createElement("div");
@@ -12,7 +11,7 @@ function placeComments(comments) {
 
         const commentUser = document.createElement("strong");
         commentUser.classList.add("text-2xl");
-        commentUser.textContent = `${comment.name}:`;
+        commentUser.textContent = `${comment.user.name}:`;
 
         const commentText = document.createElement("p");
         commentText.classList.add("text-xl", "break-words");
@@ -26,7 +25,7 @@ function placeComments(comments) {
 }
 document.addEventListener("DOMContentLoaded", function() {
     placeComments(initialData.comments);
-    state.hasMorePages.comments = initialData.hasMorePages
+    state.nextPage = initialData.nextPage
     addListenersToLoadMore('comments', loadMoreComments)
 })
 
@@ -45,14 +44,11 @@ function escapeHtml(unsafe) {
 
 async function loadMoreComments() {
     try {
-        const response = await fetch(initialData.loadMoreUrl, { method: 'GET' });
+        const urlWithPage = `${initialData.loadMoreUrl}?page=${state.nextPage}&image=${initialData.imageId}`
+        const response = await fetch(urlWithPage, { method: 'GET' });
         const data = await response.json();
-        console.log(data)
-        //
-        // if (data.images) {
-        //     state.hasMoreCommentsPages = data.hasMoreCommentsPages;
-        //     await placeImages(data.images);
-        // }
+        placeComments(data.data)
+        state.nextPage = data.nextPage;
     } catch (error) {
         console.error('Error fetching images:', error);
     }

@@ -35,6 +35,8 @@ Route::middleware(['auth', EnsureImageOwner::class])->group(function () {
 });
 
 Route::post('/comments/{imageId}', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
+Route::get('/comments/load-more', [CommentController::class, 'loadMore'])->name('comments.load-more');
+
 
 Route::get('/alpine-test', function () {
     return view('alpine-test');

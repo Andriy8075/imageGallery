@@ -27,19 +27,16 @@ for (let i = 0; i<countOfCols; i++) {
     const imageContainer = document.getElementById('image-container')
     imageContainer.appendChild(colDiv);
 }
-console.log('has more pages', initialData.images.hasMorePages);
-state.hasMorePages.images = initialData.images.hasMorePages;
-console.log("after assigning", state.hasMorePages.images)
+state.nextPage = 2
 document.addEventListener('DOMContentLoaded', async () => {
     const images = initialData.images.images;
 
     if (images.length === 0) {
         const loadingLabel = document.getElementById('loading');
-        loadingLabel.textContent = initialData.images.noImagesText;
+        loadingLabel.textContent = initialData.noImagesText;
         loadingLabel.style.display = 'block';
         return;
     }
-    console.log("before placing images", state.hasMorePages.images)
     await placeImages(images);
     addListenersToLoadMore('images', loadMoreImages)
 });

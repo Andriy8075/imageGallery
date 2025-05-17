@@ -74,4 +74,4 @@
         document.getElementById('popup').classList.add('hidden');
     }
 </script>
-@vite('resources/js/images/imageDisplaying.js')
+@vite('resources/js/images/main.js')

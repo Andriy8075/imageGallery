@@ -30,13 +30,10 @@
         const initialData = {
             scrollThreshold: @json(config('comments.scroll_threshold')),
             textArea: document.getElementById('textarea'),
-            comments: @json($comments->map(function ($comment) {
-                return [
-                    'name' => $comment->user->name,
-                    'text' => $comment->text
-                ];
-            })),
-            hasMorePages: "{{$comments->hasMorePages()}}",
+            comments: @json($comments).data,
+            nextPage: @json($nextPage),
+            imageId: @json($imageId),
+            loadMoreUrl: "{{config('images.load_urls.comments')}}",
             @auth
                 storeURL: "{{ route('comments.store', $image->id) }}",
                 authUserName: "{{ auth()->user()->name }}",
@@ -50,6 +47,5 @@
     @else
         @vite('resources/js/comments/addCommentsGuest.js')
     @endauth
-
     @vite('resources/js/comments/loadComments.js')
 </x-default-layout>

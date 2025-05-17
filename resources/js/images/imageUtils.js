@@ -59,7 +59,8 @@ const addImage = async (image) => {
         buttonsDiv.style.zIndex = '10';
         buttonsDiv.dataset.imageId = image.id;
 
-        Object.keys(svgIcons).forEach((actionName) => {
+        for (const actionName of Object.keys(svgIcons)) {
+            if ((actionName === "Edit" || actionName === "Delete") && initialData.query !== 'uploaded') continue
             const button = document.createElement('button');
             const action = svgIcons[actionName];
             button.innerHTML = actionName === 'Like' ? action.icon(image) : action.icon;
@@ -71,7 +72,7 @@ const addImage = async (image) => {
 
             buttonsDiv.appendChild(button);
 
-            if (actionName === 'More') {
+            if (actionName === 'Delete') {
                 button.dataset.imageId = image.id;
                 button.addEventListener('click', svgIcons[actionName].onClick(button));
             }
@@ -81,7 +82,7 @@ const addImage = async (image) => {
             else {
                 button.addEventListener('click', svgIcons[actionName].onClick);
             }
-        });
+        }
 
         imageDiv.appendChild(buttonsDiv);
 

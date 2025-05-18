@@ -19,8 +19,7 @@ class ImageController extends Controller
             });
         }
         if ($query === 'uploaded') {
-            $userId = auth()->id();
-            return Image::where('user_id', $userId);
+            return auth()->user()->uploadedImages();
         }
         if ($query === 'search') {
             return Image::where('title', 'like', '%' . $params["userQuery"] . '%')

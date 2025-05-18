@@ -18,6 +18,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/images', [ImageController::class, 'index'])->name('images');
 Route::get('/images/load-more', [ImageController::class, 'loadMoreAny'])->name('images.load-more');
+Route::get('/images/search', [ImageController::class, 'search'])->name('images.search');
+Route::get('/images/load-more-search', [ImageController::class, 'loadMoreSearch'])->name('images.load-more-search');
 Route::middleware('auth')->group(function () {
     Route::get('/images/uploaded', [ImageController::class, 'uploaded'])->name('images.uploaded');
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
@@ -36,7 +38,6 @@ Route::middleware(['auth', EnsureImageOwner::class])->group(function () {
 
 Route::post('/comments/{imageId}', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
 Route::get('/comments/load-more', [CommentController::class, 'loadMore'])->name('comments.load-more');
-
 
 Route::get('/alpine-test', function () {
     return view('alpine-test');

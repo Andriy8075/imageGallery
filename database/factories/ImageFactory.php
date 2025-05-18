@@ -19,7 +19,7 @@ class ImageFactory extends Factory
         $width = rand(50, 2000);
         $height = rand(50, 2000);
 
-        $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 1000);
+        $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 100000);
         $fileName = Str::random(40) . '.jpg';
         $newPath = $destinationFolder . '/' . $fileName;
 

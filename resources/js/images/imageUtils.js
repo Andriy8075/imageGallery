@@ -127,7 +127,12 @@ export const loadMoreImages = async () => {
     loadingLabel.style.display = 'block'
 
     try {
-        const fullURL = `${initialData.loadMoreUrl}?page=${state.nextPage}`
+        let fullURL = `${initialData.loadMoreUrl}?page=${state.nextPage}`
+        if (initialData.query === "search") {
+            const search = document.getElementById('search')
+            fullURL += `&search=${search.value}`;
+        }
+        console.log(fullURL)
         const response = await fetch(fullURL, { method: 'GET' });
         const data = await response.json();
         if (data.images) {

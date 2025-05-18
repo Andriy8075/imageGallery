@@ -15,10 +15,13 @@
         </a>
     </div>
 
-    <form method="GET" action="{{ route('images.search')}}">
-        <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-3 py-2 mx-4">
-            <input type="text" placeholder="Search..." name="search" class="bg-transparent border-none outline-none text-sm w-full">
+    <form class="flex-1 flex items-center bg-gray-100 rounded-xl px-1 py-2 mx-1" method="GET" action="{{ route('images.search')}}">
+        <div class="flex-1 flex items-center bg-gray-100 rounded-xl py-1 mx-4">
+            <input id="search" value="{{ request('search') }}" type="text" placeholder="Search..." name="search" class="bg-transparent border-none outline-none text-sm w-full">
         </div>
+        <button type="submit" class="text-white bg-blue-500 hover:bg-blue-300 px-6 py-2 rounded-lg ms-1 text-2xl">
+            🔍
+        </button>
     </form>
     @guest
         @if (Route::has('login'))

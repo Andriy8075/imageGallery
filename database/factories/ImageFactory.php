@@ -32,8 +32,7 @@ class ImageFactory extends Factory
         return [
             'title' => 'Image ' . $this->i,
             'description' => 'Description for image ' . $this->i,
-            'user_id' => 12,
-            //'user_id' => $this->faker->numberBetween(1, 5),
+            'user_id' => $this->faker->numberBetween(1, 5),
             'file_path' => $fileName,  // Image path relative to the public folder
         ];
     }

@@ -1,27 +1,37 @@
 <x-default-layout>
     @include('layouts.navigation')
-    <div class="m-12">
-        <h1 class="text-2xl">{{$image->title}}</h1>
-    </div>
+    <div class="flex flex-col min-h-screen">
+        <!-- Centered Title with reduced gap -->
+        <div class="mt-6 mb-2 text-center">
+            <h1 class="text-2xl">{{$image->title}}</h1>
+        </div>
 
-    <div class="mx-4">
-        <img src="{{ asset('storage/images/' . $image->file_path) }}" class="w-full h-auto">
-    </div>
+        <!-- Centered Image (original size) -->
+        <div class="mx-4 flex items-center justify-center" style="height: 100vh; overflow: auto;">
+            <img
+                src="{{ asset('storage/images/' . $image->file_path) }}"
+                class="w-auto h-5/6 object-contain"
+                style="max-width: 100%"
+            >
+        </div>
 
-    <div class="m-12">
-        <h1 class="text-l">{!! nl2br(e($image->description)) !!}</h1>
-    </div>
+        <!-- Centered Description with reduced gap -->
+        <div class="mt-2 mb-6 text-center">
+            <h1 class="text-l">{!! nl2br(e($image->description)) !!}</h1>
+        </div>
 
-    <div class="m-12">
-        <form id="comment-form">
-            <div>
-                <label for="text" class="block text-lg font-medium">Write a comment</label>
-                <textarea id="textarea" name="text" rows="2" class="w-full p-2 border rounded" placeholder="Write your comment here..."></textarea>
-            </div>
-            <div id="submit-button-div" class="mt-4 hidden">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Post Comment</button>
-            </div>
-        </form>
+        <!-- Comment form with reduced top gap -->
+        <div class="mx-12 mb-8 mt-4">
+            <form id="comment-form">
+                <div>
+                    <label for="text" class="block text-lg font-medium">Write a comment</label>
+                    <textarea id="textarea" name="text" rows="2" class="w-full p-2 border rounded" placeholder="Write your comment here..."></textarea>
+                </div>
+                <div id="submit-button-div" class="mt-4 hidden">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Post Comment</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="comments-div" class="m-12 mb-24">
@@ -37,6 +47,7 @@
             @auth
                 storeURL: "{{ route('comments.store', $image->id) }}",
                 authUserName: "{{ auth()->user()->name }}",
+                authUserId: "{{ Auth::id() }}",
             @else
                 loginURL: "{{ route('login', ['redirect' => request()->fullUrl()]) }}",
             @endauth

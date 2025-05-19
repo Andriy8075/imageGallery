@@ -54,7 +54,7 @@
 
     const initialData = {
         images: imagesResponse,
-        imageMaxWidth: imageConfigs.image_max_width,
+        imageMaxWidth: imageConfigs.column_max_width,
         scrollThreshold: imageConfigs.scroll_threshold,
         noImagesText: imageConfigs.no_images_texts[query],
         loadMoreUrl: "{{ url(config('images.load_urls.' . ($images['query']))) }}",

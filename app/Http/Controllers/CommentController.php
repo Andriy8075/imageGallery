@@ -9,33 +9,46 @@ use Illuminate\Support\Facades\Auth;
 use Debugbar;
 class CommentController extends Controller
 {
-    public function store(Request $request, $imageId)
+    protected function validateComment(Request $request): array
     {
-        // Validate the incoming request
-
-        $validated = $request->validate([
+        return $request->validate([
             'text' => [
                 'required',
                 'string',
-                'max:4096',
+                'max:' . config('comments.max_length'),
                 function ($attribute, $value, $fail) {
-                    $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                    $lineCount = substr_count($value, "\n") + 1;
                     if ($lineCount > 20) {
                         $fail('The text must have fewer than 20 lines.');
                     }
                 },
             ],
         ]);
-        // Find the image using the image ID passed in the route
+    }
+    public function store(Request $request, $imageId)
+    {
+        $validated = $this->validateComment($request);
         Image::findOrFail($imageId);
-
         Comment::create([
             'user_id' => Auth::id(),
             'image_id' => $imageId,
             'text' => $validated['text'],
         ]);
 
-        // Redirect back to the image page with a success message
+        return response()->noContent(200);
+    }
+
+    public function update(Request $request, Comment $comment) {
+        $validated = $this->validateComment($request);
+        $comment->update([
+            'text' => $validated['text'],
+        ]);
+
+        return response()->noContent(200);
+    }
+
+    public function destroy(Comment $comment) {
+        $comment->destroy($comment->id);
         return response()->noContent(200);
     }
 
@@ -49,10 +62,6 @@ class CommentController extends Controller
         $perPage = config('comments.per_page', 10);
         $image = Image::findOrFail($imageId);
         $comments = $image->comments()->with('user')->paginate($perPage);
-//        $comments = Comment::where('image_id', $image)
-//            ->with('user') // Eager load user relationship
-//            ->orderBy('created_at', 'desc') // Typically newest first
-//            ->paginate($perPage, ['*'], 'page', $page);
 
         if ($page > $comments->lastPage()) {
             return response()->json([

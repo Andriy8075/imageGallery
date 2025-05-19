@@ -63,14 +63,14 @@ class ImageController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'title' => 'max:128|string|nullable',
+            'title' => 'max:' . config('images.max_title_length') . '|string|nullable',
             'description' => [
-                'max:4096',
+                'max:' . config('images.max_description_length'),
                 'string',
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if (!empty($value)) { // Ensure value is not null
-                        $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                    if (!empty($value)) {
+                        $lineCount = substr_count($value, "\n") + 1;
                         if ($lineCount > 20) {
                             $fail('The description must have fewer than 20 lines.');
                         }

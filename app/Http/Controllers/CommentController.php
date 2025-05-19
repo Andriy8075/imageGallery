@@ -9,23 +9,26 @@ use Illuminate\Support\Facades\Auth;
 use Debugbar;
 class CommentController extends Controller
 {
-    public function store(Request $request, $imageId)
+    protected function validateComment(Request $request): array
     {
-        $validated = $request->validate([
+        return $request->validate([
             'text' => [
                 'required',
                 'string',
                 'max:' . config('comments.max_length'),
                 function ($attribute, $value, $fail) {
-                    $lineCount = substr_count($value, "\n") + 1; // Counting lines
+                    $lineCount = substr_count($value, "\n") + 1;
                     if ($lineCount > 20) {
                         $fail('The text must have fewer than 20 lines.');
                     }
                 },
             ],
         ]);
+    }
+    public function store(Request $request, $imageId)
+    {
+        $validated = $this->validateComment($request);
         Image::findOrFail($imageId);
-        if(!auth()->check()) return redirect()->route('login');
         Comment::create([
             'user_id' => Auth::id(),
             'image_id' => $imageId,
@@ -35,23 +38,18 @@ class CommentController extends Controller
         return response()->noContent(200);
     }
 
-    public function update(Request $request, $commentId) {
-        $validated = $request->validate([
-            'text' => [
-                'required',
-                'string',
-                'max:' . config('comments.max_length'),
-                function ($attribute, $value, $fail) {
-                    $lineCount = substr_count($value, "\n") + 1; // Counting lines
-                    if ($lineCount > 20) {
-                        $fail('The text must have fewer than 20 lines.');
-                    }
-                },
-            ],
+    public function update(Request $request, Comment $comment) {
+        $validated = $this->validateComment($request);
+        $comment->update([
+            'text' => $validated['text'],
         ]);
-        Comment::findOrFail($commentId);
-        if(!auth()->check()) return redirect()->route('login');
-        if(Auth::id() !== $comment->user_id) abort(403);
+
+        return response()->noContent(200);
+    }
+
+    public function destroy(Comment $comment) {
+        $comment->destroy($comment->id);
+        return response()->noContent(200);
     }
 
     public function loadMore(Request $request) {

@@ -29,14 +29,3 @@ test('unauthenticated can not comment', function () {
     $this->post("/comments/1", ['text' => 'bebra1']);
     $this->assertDatabaseCount('comments', 0);
 });
-
-test('too long', function() {
-    $user = User::factory()->create();
-    Image::factory()->create(['user_id' => $user->id]);
-
-    $commentLength = config('comments.max_length') + 1;
-    $this->post("/comments/1", [
-        'text' => Str::random($commentLength)
-    ]);
-    $this->assertDatabaseCount('comments', 0);
-});

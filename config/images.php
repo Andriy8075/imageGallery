@@ -4,6 +4,8 @@ return [
     'max_height_to_width' => 3, //how many max times height of images can exceed width
     'max_width_to_height' => 3, //how many max times width of images can exceed height
     'max_size' => '16384',
+    'max_title_length' => 127,
+    'max_description_length' => 4095,
     'images_per_load' => 20,
     'column_max_width' => 300, // in px
     'scroll_threshold' => 500, //in px

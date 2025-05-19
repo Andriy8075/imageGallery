@@ -22,4 +22,4 @@ test('circular relationships', function () {
 //    $user2 = User::factory()->create();
 //    $image = ImagesRelationships::factory()->create(['user_id' => $user1->id]);
 //    Comment::factory()->create(['image_id' => $image->id, 'user_id' => $user2->id]);
-//})
+//});

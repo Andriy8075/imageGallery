@@ -16,3 +16,10 @@ test('circular relationships', function () {
     $commentsUser = $firstComment->user();
     expect($commentsUser->is($user2))->toBeTrue();
 });
+
+//test('oposite direction', function() {
+//    $user1 = User::factory()->create();
+//    $user2 = User::factory()->create();
+//    $image = ImagesRelationships::factory()->create(['user_id' => $user1->id]);
+//    Comment::factory()->create(['image_id' => $image->id, 'user_id' => $user2->id]);
+//})

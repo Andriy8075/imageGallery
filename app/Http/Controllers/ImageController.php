@@ -77,7 +77,28 @@ class ImageController extends Controller
                     }
                 },
             ],
-            'image' => 'image|max:16384|required',
+            'image' => [
+                'image',
+                'max:' . config('images.max_size'),
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $image = getimagesize($request->file('image'));
+                    if (!$image) {
+                        $fail('Unable to read image dimensions.');
+                        return;
+                    }
+                    $width = $image[0];
+                    $height = $image[1];
+
+                    $max_height_to_width = config('images.max_height_to_width');
+                    $max_width_to_height = config('images.max_width_to_height');
+                    if ($height > $max_height_to_width * $width) {
+                        $fail('The image height must not exceed ' . $max_height_to_width . ' times its width.');
+                    } elseif ($width > $max_width_to_height * $height) {
+                        $fail('The image width must not exceed ' . $max_width_to_height . 'times its height.');
+                    }
+                }
+            ]
         ]);
 
         $file_path = Storage::disk('images')->putFile('/', $request->file('image'));

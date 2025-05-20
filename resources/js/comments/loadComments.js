@@ -24,7 +24,6 @@ const commentsDiv = document.getElementById("comments-div");
 //     }
 // }
 const authUserId = parseInt(initialData.authUserId);
-console.log(initialData.authUserId)
 function placeComments(comments) {
 
     for (const comment of comments) {
@@ -42,13 +41,11 @@ function placeComments(comments) {
         commentText.classList.add("text-xl", "break-words", "my-2");
         commentText.innerHTML = nl2br(escapeHtml(comment.text));
         commentText.id = `comment-text-${comment.id}`;
-        console.log(commentText.id)
 
         // Action buttons container
         const actionsDiv = document.createElement("div");
         actionsDiv.classList.add("flex", "gap-2", "mt-2");
         if(comment.user.id === authUserId) {
-            console.log('inside')
             // Edit button
             const editBtn = document.createElement("button");
             editBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>';
@@ -137,7 +134,6 @@ async function updateComment(commentId, newText) {
         });
 
         if (response.ok) {
-            console.log(commentId)
         } else {
             alert('Failed to update comment');
         }

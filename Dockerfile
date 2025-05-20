@@ -19,7 +19,6 @@ RUN apk add --no-cache \
     libpng \
     oniguruma \
     libxml2 \
-    mariadb-client \
     libzip
 
 RUN apk add --no-cache --virtual .build-deps \

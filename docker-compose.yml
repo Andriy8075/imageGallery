@@ -1,25 +1,25 @@
-version: "3.8"
+version: "3.8"  # Can be removed as per warning, but won't cause issues
 networks:
     application:
         driver: bridge
 
 services:
     db:
-        image: mysql:latest
+        image: mysql:8.0  # Use a specific version instead of latest
+        container_name: mysqlcontainer
         ports:
             - "3306:3306"
         volumes:
             - ./data:/var/lib/mysql
         environment:
-            - MYSQL_ROOT_PASSWORD=
-            - MYSQL_DATABASE=image_gallery
-            - MYSQL_USER=root
-            - MYSQL_PASSWORD=
+            MYSQL_ROOT_PASSWORD: qwepoi  # Must be set (change to something secure)
+            MYSQL_DATABASE: image_gallery
+            MYSQL_USER: image_gallery_user
+            MYSQL_PASSWORD: qwepoi       # Should match root password or be different
         networks:
             - application
-        container_name: mysqldb
         healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
+            test: ["CMD", "mysqladmin", "ping", "-uroot", "-prootpassword"]  # Update password here
             interval: 5s
             timeout: 5s
             retries: 30
@@ -27,15 +27,14 @@ services:
 
     app:
         build: .
-        container_name: backend
+        container_name: app
         ports:
             - "8000:8000"
-        command: sh -c "
-            if [ ! -f .env ]; then cp .env.example .env; fi &&
-            php artisan key:generate &&
-            php artisan migrate &&
-            php artisan serve --host=0.0.0.0 --port=8000
-            "
+        environment:
+            DB_HOST: db
+            DB_DATABASE: image_gallery
+            DB_USERNAME: root
+            DB_PASSWORD: qwepoi  # Must match MySQL password
         depends_on:
             db:
                 condition: service_healthy

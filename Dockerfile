@@ -2,7 +2,7 @@
 FROM node:18-alpine AS node-build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install && npm cache clean --force
+RUN npm i
 COPY . .
 RUN npm run build && rm -rf node_modules
 

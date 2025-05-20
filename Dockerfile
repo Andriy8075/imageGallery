@@ -2,9 +2,10 @@
 FROM node:18-alpine AS node-build
 WORKDIR /app
 COPY package*.json ./
-RUN npm i
-COPY . .
-RUN npm run build && rm -rf node_modules
+COPY vite.config.js ./
+COPY resources/js ./resources/js
+RUN npm install && npm cache clean --force
+RUN npm run build
 
 # Stage 2: Composer builder
 FROM composer:2 AS php-deps
@@ -19,6 +20,7 @@ RUN apk add --no-cache \
     libpng \
     oniguruma \
     libxml2 \
+    mariadb-client \
     libzip
 
 RUN apk add --no-cache --virtual .build-deps \
@@ -42,6 +44,9 @@ WORKDIR /var/www
 COPY --from=php-deps /app/vendor ./vendor
 COPY --from=node-build /app/public/build ./public/build
 COPY . .
+
+# Ensure the build directory exists
+RUN mkdir -p public/build
 
 RUN ls -la
 RUN ls -la /var/www

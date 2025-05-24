@@ -4,8 +4,6 @@ Instruction to start app:
 2. enter folder with repository 
 3. launch docker-compose
 
-or just copy these commands:
+or just copy this line with commands:
 
-git clone https://github.com/Andriy8075/imageGallery.git
-cd imageGallery
-docker compose up
+git clone https://github.com/Andriy8075/imageGallery.git && cd imageGallery && docker compose up

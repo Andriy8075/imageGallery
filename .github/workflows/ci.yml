@@ -1,4 +1,4 @@
-name: Run tests
+name: Laravel Tests
 
 on:
   push:
@@ -7,26 +7,49 @@ on:
     branches: [ CI ]
 
 jobs:
-  tests:
-    name: Run tests
+  test:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: laravel
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          extensions: mbstring, dom, fileinfo, mysql, sqlite
           coverage: none
 
-      - name: Run composer install
-        run: composer install -n --prefer-dist
-
-      - name: Prepare Laravel Application
+      - name: Install dependencies
         run: |
-          cp .env.ci .env
+          composer install --prefer-dist --no-interaction
+          cp .env.example .env
           php artisan key:generate
 
-      - name: Run tests
+      - name: Prepare environment
+        run: |
+          php artisan config:clear
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=laravel" >> .env
+          echo "DB_USERNAME=laravel" >> .env
+          echo "DB_PASSWORD=secret" >> .env
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Execute tests
         run: php artisan test

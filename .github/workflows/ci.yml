@@ -2,9 +2,9 @@ name: Laravel Tests
 
 on:
   push:
-    branches: [ CI ]
+    branches: [ CIMysql ]
   pull_request:
-    branches: [ CI ]
+    branches: [ CIMysql ]
 
 jobs:
   test:

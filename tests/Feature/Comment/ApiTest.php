@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Models\Image;
 
+
 test('authenticated can comment', function () {
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();

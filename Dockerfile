@@ -2,10 +2,9 @@
 FROM node:18-alpine AS node-build
 WORKDIR /app
 COPY package*.json ./
-COPY vite.config.js ./
-COPY resources ./resources
 RUN npm install && npm cache clean --force
-RUN npm run build
+COPY . .
+RUN npm run build && rm -rf node_modules
 
 # Stage 2: Composer builder
 FROM composer:2 AS php-deps
@@ -44,9 +43,6 @@ WORKDIR /var/www
 COPY --from=php-deps /app/vendor ./vendor
 COPY --from=node-build /app/public/build ./public/build
 COPY . .
-
-# Ensure the build directory exists
-RUN mkdir -p public/build
 
 RUN ls -la
 RUN ls -la /var/www

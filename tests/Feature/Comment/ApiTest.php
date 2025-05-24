@@ -2,12 +2,7 @@
 
 use App\Models\User;
 use App\Models\Image;
-use Illuminate\Support\Facades\Storage;
 
-beforeEach(function () {
-    // This runs before each test
-    Storage::fake('public'); // Use fake storage for all tests
-});
 
 test('authenticated can comment', function () {
     $user1 = User::factory()->create();

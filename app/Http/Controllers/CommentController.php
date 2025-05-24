@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\comment;
+use App\Models\Comment;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Debugbar;
 class CommentController extends Controller
 {
     protected function validateComment(Request $request): array

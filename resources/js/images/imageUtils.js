@@ -132,7 +132,6 @@ export const loadMoreImages = async () => {
             const search = document.getElementById('search')
             fullURL += `&search=${search.value}`;
         }
-        console.log(fullURL)
         const response = await fetch(fullURL, { method: 'GET' });
         const data = await response.json();
         if (data.images) {

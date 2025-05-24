@@ -2,7 +2,7 @@
 
 use App\Models\Image;
 use App\Models\User;
-use App\Models\comment;
+use App\Models\Comment;
 
 test('circular relationships', function () {
     $user1 = User::factory()->create();

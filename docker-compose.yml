@@ -1,0 +1,49 @@
+version: "3.8"
+networks:
+    application:
+        driver: bridge
+
+services:
+    db:
+        image: mariadb:latest
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./data:/var/lib/mysql
+        environment:
+            - MARIADB_ROOT_PASSWORD=root
+            - MARIADB_DATABASE=dockerlaravel
+            - MARIADB_USER=laravel
+            - MARIADB_PASSWORD=secret
+            - MARIADB_AUTO_UPGRADE=1
+        networks:
+            - application
+        container_name: mysqldb
+        healthcheck:
+            test: ["CMD", "mariadb-admin", "ping", "--user=root", "--password=root"]
+            interval: 5s
+            timeout: 5s
+            retries: 30
+        restart: unless-stopped
+
+    app:
+        build: .
+        container_name: backend
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./storage/app/public:/var/www/storage/app/public  # Mount storage directory
+            - ./public/storage:/var/www/public/storage         # Mount the symlink target
+        command: sh -c "
+            if [ ! -f .env ]; then cp .env.example .env; fi &&
+            php artisan key:generate &&
+            php artisan storage:link &&
+            php artisan migrate &&
+            php artisan serve --host=0.0.0.0 --port=8000
+            "
+        depends_on:
+            db:
+                condition: service_healthy
+        networks:
+            - application
+        restart: unless-stopped

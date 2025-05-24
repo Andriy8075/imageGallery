@@ -3,6 +3,12 @@
 use App\Models\Image;
 use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+beforeEach(function () {
+    // This runs before each test
+    Storage::fake('public'); // Use fake storage for all tests
+});
 
 test('too long', function() {
     $user = User::factory()->create();

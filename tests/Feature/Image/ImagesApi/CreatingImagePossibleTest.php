@@ -7,6 +7,11 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+beforeEach(function () {
+    // This runs before each test
+    Storage::fake('public'); // Use fake storage for all tests
+});
+
 test('unauthenticated can not access create page', function () {
     $response = $this->get('/images/create');
     $response->assertRedirect('/login');

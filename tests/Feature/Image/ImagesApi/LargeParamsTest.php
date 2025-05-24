@@ -3,6 +3,12 @@
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+beforeEach(function () {
+    // This runs before each test
+    Storage::fake('public'); // Use fake storage for all tests
+});
 
 test('too large image size', function() {
     $user = User::factory()->create();

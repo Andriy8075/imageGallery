@@ -37,17 +37,23 @@ RUN apk add --no-cache --virtual .build-deps \
     zip && \
 apk del .build-deps
 
-
 WORKDIR /var/www
 
 COPY --from=php-deps /app/vendor ./vendor
 COPY --from=node-build /app/public/build ./public/build
 COPY . .
 
-RUN ls -la
-RUN ls -la /var/www
+# Create storage directory structure and set permissions
+RUN mkdir -p storage/app/public \
+    storage/framework/{cache,sessions,testing,views} \
+    storage/logs \
+    bootstrap/cache
 
 RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
+
+# Create symbolic link
+RUN php artisan storage:link
 
 EXPOSE 8000
 

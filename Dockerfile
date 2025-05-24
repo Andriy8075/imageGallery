@@ -3,7 +3,7 @@ FROM node:18-alpine AS node-build
 WORKDIR /app
 COPY package*.json ./
 COPY vite.config.js ./
-COPY resources/js ./resources/js
+COPY resources ./resources
 RUN npm install && npm cache clean --force
 RUN npm run build
 

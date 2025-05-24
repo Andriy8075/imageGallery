@@ -2,11 +2,17 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
-    build: {
-        manifest: true,
-        outDir: 'public/build',
-        rollupOptions: {
-            input: 'resources/js/app.js' // or your main entry point
-        }
-    }
+    plugins: [
+        laravel({
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/js/images/main.js',
+                'resources/js/comments/addCommentsAuth.js',
+                'resources/js/comments/addCommentsGuest.js',
+                'resources/js/comments/loadComments.js'
+            ],
+            refresh: true,
+        }),
+    ],
 });

@@ -1,6 +1,10 @@
 name: Run tests
 
-on: [CI]
+on:
+  push:
+    branches: [ CI ]
+  pull_request:
+    branches: [ CI ]
 
 jobs:
   tests:

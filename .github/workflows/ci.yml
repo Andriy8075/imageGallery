@@ -48,6 +48,11 @@ jobs:
           echo "DB_USERNAME=laravel" >> .env
           echo "DB_PASSWORD=secret" >> .env
 
+      - name: Create storage
+        run: |
+          mkdir -p storage/app/public/images
+          php artisan storage:link
+
 
       - name: Run migrations
         run: php artisan migrate --force

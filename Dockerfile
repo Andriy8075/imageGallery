@@ -16,6 +16,16 @@ RUN composer install --no-dev --no-scripts --optimize-autoloader
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache \
+    bash \
+    vim \
+    curl \
+    git \
+    lsof \
+    procps \
+    tree \
+    && rm -rf /var/cache/apk/*
+
+RUN apk add --no-cache \
     libpng \
     oniguruma \
     libxml2 \

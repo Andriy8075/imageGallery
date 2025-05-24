@@ -16,8 +16,8 @@ class ImageFactory extends Factory
     public function definition()
     {
         $destinationFolder = storage_path('app/public/images');
-        $width = rand(50, 2000);
-        $height = rand(50, 2000);
+        $width = rand(400, 1200);
+        $height = rand(400, 1200);
 
         $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 100000);
         $fileName = Str::random(40) . '.jpg';

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 class ImageController extends Controller
 {
     protected $queries = [];
@@ -221,18 +222,25 @@ class ImageController extends Controller
                 return $image;
             });
         }
-        return [
-            'images' => $images->map(function ($image) {
+
+        $responseImages = [];
+        foreach($images as $image) {
+            try {
                 $imagePath = storage_path('app/public/images/' . $image->file_path);
                 $imageSize = getimagesize($imagePath);
-                return [
+                array_push($responseImages, [
                     'url' => url('storage/images/' . $image->file_path),
                     'width' => $imageSize[0],
                     'height' => $imageSize[1],
                     'id' => $image->id,
                     'liked' => $image->liked,
-                ];
-            }),
+                ]);
+            }
+            catch (\Throwable $exception) {}
+        }
+
+        return [
+            'images' => $responseImages,
             'hasMorePages' => $images->hasMorePages(),
             'query' => $query,
         ];

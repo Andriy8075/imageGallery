@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/images/liked', [ImageController::class, 'liked'])->name('images.liked');
     Route::post('/images/{image}/like', [ImageController::class, 'like'])->name('images.like');
     Route::get('/images/load-more-uploaded', [ImageController::class, 'loadMoreUploaded'])->name('images.load-more-uploaded');
-    Route::get('/images/load-more-liked', [ImageController::class, 'loadMoreLiked'])->name('images.load-more');
+    Route::get('/images/load-more-liked', [ImageController::class, 'loadMoreLiked'])->name('images.load-more-liked');
 });
 Route::get('/images/{id}', [ImageController::class, 'show'])->name('images.show');
 Route::middleware(['auth', EnsureImageOwner::class])->group(function () {
@@ -49,3 +49,4 @@ Route::get('/alpine-test', function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/testing.php';

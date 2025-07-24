@@ -7,7 +7,9 @@
 /storage/*.key
 /storage/pail
 /vendor
-savedEnv/.env
+/savedEnv/
+/savedEnv/.env
+.env
 .env.backup
 .env.production
 .phpactor.json

@@ -57,7 +57,7 @@ services:
     restart: unless-stopped
     user: mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
       - MYSQL_DATABASE=${DB_DATABASE:-app}

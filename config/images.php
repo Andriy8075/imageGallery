@@ -6,7 +6,7 @@ return [
     'max_size' => '16384',
     'max_title_length' => 127,
     'max_description_length' => 4095,
-    'images_per_load' => 20,
+    'images_per_load' => 1000,
     'column_max_width' => 300, // in px
     'scroll_threshold' => 500, //in px
     'load_urls' => [

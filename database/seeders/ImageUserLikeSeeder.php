@@ -13,7 +13,7 @@ class ImageUserLikeSeeder extends Seeder
      */
     public function run(): void
     {
-        $count = 205;
+        $count = 30_000;
 
         // Use factory to create images with titles, descriptions, and downloaded images
         ImageUserLike::factory()->count($count)->create();

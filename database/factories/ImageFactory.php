@@ -15,25 +15,25 @@ class ImageFactory extends Factory
 
     public function definition()
     {
-        $destinationFolder = storage_path('app/public/images');
-        $width = rand(400, 1200);
-        $height = rand(400, 1200);
-
-        $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 100000);
-        $fileName = Str::random(40) . '.jpg';
-        $newPath = $destinationFolder . '/' . $fileName;
-
-
-        $response = Http::get($imageUrl);
-        File::put($newPath, $response->body());
-
-        $this->i++;
+//        $destinationFolder = storage_path('app/public/images');
+//        $width = rand(400, 1200);
+//        $height = rand(400, 1200);
+//
+//        $imageUrl = "https://picsum.photos/{$width}/{$height}?random=" . rand(1, 100000);
+//        $fileName = Str::random(40) . '.jpg';
+//        $newPath = $destinationFolder . '/' . $fileName;
+//
+//
+//        $response = Http::get($imageUrl);
+//        File::put($newPath, $response->body());
+//
+//        $this->i++;
 
         return [
             'title' => 'Image ' . $this->i,
             'description' => 'Description for image ' . $this->i,
-            'user_id' => $this->faker->numberBetween(1, 5),
-            'file_path' => $fileName,  // Image path relative to the public folder
+            'user_id' => $this->faker->numberBetween(1, 99),
+            'file_path' => Str::random(40) . '.jpg',  // Image path relative to the public folder
         ];
     }
 

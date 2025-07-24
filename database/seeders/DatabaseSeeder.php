@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
+        User::factory(100)->create();
 
 //        User::factory()->create([
 //            'name' => 'Test User',
@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(ImageSeeder::class);
         $this->call(ImageUserLikeSeeder::class);
+        $this->call(CommentSeeder::class);
     }
 }

@@ -9,14 +9,13 @@ class ImageUserLikeFactory extends Factory
 {
     static $usedPairs = [];
     public function definition() {
-        $userId = random_int(1, 5);
-        $imageId = random_int(1, 100);
+        $userId = random_int(1, 90);
+        $imageId = random_int(1, 999);
         $key = "$userId-$imageId";
         $recordAlreadyExist = DB::table('image_user_likes')
             ->where('user_id', $userId)
             ->where('image_id', $imageId)
             ->exists();
-        var_dump($recordAlreadyExist);
         if(!$recordAlreadyExist && !in_array($key, static::$usedPairs)){
             static::$usedPairs[] = $key;
             return [
@@ -24,7 +23,6 @@ class ImageUserLikeFactory extends Factory
                 'image_id' => $imageId,
             ];
         }
-        echo "recursion" . PHP_EOL;
         return $this->definition();
     }
 }

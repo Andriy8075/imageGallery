@@ -15,10 +15,17 @@ fi
 # Remove storage-init directory
 rm -rf /var/www/storage-init
 
+php artisan storage:link
+
 # Run Laravel migrations
 # -----------------------------------------------------------
 # Ensure the database schema is up to date.
 # -----------------------------------------------------------
+
+while ! mysqladmin ping -h"mysql" -u"${DB_USERNAME:-laravel}" -p"${DB_PASSWORD:-secret}" --silent; do
+    sleep 0.5
+done
+
 php artisan migrate --force
 
 # Clear and cache configurations

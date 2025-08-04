@@ -1,6 +1,4 @@
 /.phpunit.cache
-/savedFiles/
-/savedEnv/
 /node_modules
 /public/build
 /public/hot
@@ -8,8 +6,6 @@
 /storage/*.key
 /storage/pail
 /vendor
-/savedEnv/
-/savedEnv/.env
 .env
 .env.backup
 .env.production

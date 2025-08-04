@@ -12,22 +12,20 @@ import {
     state,
 } from '../state.js';
 
+import {
+    Album
+} from "./Album.js";
+
 if(initialData.images.length === 0) {
 
 }
 
-const windowWidth = window.innerWidth
-const countOfCols = Math.ceil(windowWidth/initialData.imageMaxWidth)
-for (let i = 0; i<countOfCols; i++) {
-    const colDiv = document.createElement('div');
-    colDiv.classList.add('col');
-    colDiv.id = `col-${i}`;
-    colDiv.style.margin = '8px';
-    colDiv.style.height = 'min-content'
-    const imageContainer = document.getElementById('image-container')
-    imageContainer.appendChild(colDiv);
-}
-state.nextPage = 2
+const numberOfColumns = Math.ceil(windowWidth/initialData.imageMaxWidth)
+Album = new Album(numberOfColumns);
+(async ()=>{
+  await Album.placeImages(initialData.images.images);
+  Album.listenForMore('images');
+})();
 document.addEventListener('DOMContentLoaded', async () => {
     const images = initialData.images.images;
 

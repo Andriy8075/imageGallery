@@ -5,7 +5,7 @@ networks:
 
 services:
     db:
-        image: mariadb:10.11.15-ubi9
+        image: mariadb:10.11.15-jammy
         ports:
             - "3306:3306"
         volumes:

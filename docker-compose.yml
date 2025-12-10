@@ -5,14 +5,14 @@ networks:
 
 services:
     db:
-        image: mariadb:latest
+        image: mariadb:10.11.15-ubi9
         ports:
             - "3306:3306"
         volumes:
             - ./data:/var/lib/mysql
         environment:
             - MARIADB_ROOT_PASSWORD=root
-            - MARIADB_DATABASE=dockerlaravel
+            - MARIADB_DATABASE=laravel
             - MARIADB_USER=laravel
             - MARIADB_PASSWORD=secret
             - MARIADB_AUTO_UPGRADE=1
@@ -36,8 +36,6 @@ services:
             - ./public/storage:/var/www/public/storage         # Mount the symlink target
         command: sh -c "
             if [ ! -f .env ]; then cp .env.example .env; fi &&
-            sed -i 's/DB_HOST=.*/DB_HOST=db/' .env &&
-            sed -i 's/DB_DATABASE=.*/DB_DATABASE=dockerlaravel/' .env &&
             php artisan key:generate &&
             php artisan storage:link &&
             php artisan migrate &&

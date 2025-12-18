@@ -5,22 +5,21 @@ networks:
 
 services:
     db:
-        image: mariadb:10.11.15-jammy
+        image: mysql:8.0.44-bookworm
         ports:
             - "3306:3306"
         volumes:
             - ./data:/var/lib/mysql
         environment:
-            - MARIADB_ROOT_PASSWORD=root
-            - MARIADB_DATABASE=laravel
-            - MARIADB_USER=laravel
-            - MARIADB_PASSWORD=secret
-            - MARIADB_AUTO_UPGRADE=1
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=laravel
+            - MYSQL_USER=laravel
+            - MYSQL_PASSWORD=secret
         networks:
             - application
         container_name: mysqldb
         healthcheck:
-            test: ["CMD", "mariadb-admin", "ping", "--user=root", "--password=root"]
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
             interval: 5s
             timeout: 5s
             retries: 30

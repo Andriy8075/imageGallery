@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureImageOwner;
 use App\Http\Middleware\EnsureCommentOwner;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\StatisticsController;
 
 Route::get('/', [ImageController::class, 'index']);
 
@@ -44,8 +45,6 @@ Route::middleware(['auth', EnsureCommentOwner::class])->group(function () {
     Route::delete('/comments/{comment}/destroy', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
-Route::get('/alpine-test', function () {
-    return view('alpine-test');
-});
+Route::get('/statistics', StatisticsController::class)->name('statistics');
 
 require __DIR__.'/auth.php';

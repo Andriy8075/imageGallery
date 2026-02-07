@@ -1,0 +1,40 @@
+networks:
+  application:
+    driver: bridge
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: imageGallery
+    restart: always
+    working_dir: /var/www/
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../:/var/www
+    command: ["sh", "/var/www/docker/dev/entrypoint.sh"]
+    networks:
+      - application
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./storage/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=imageGallery
+    networks:
+      - application
+    container_name: imageGalleryDB
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped

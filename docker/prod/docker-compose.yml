@@ -31,8 +31,14 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - ./storage/app/public:/var/www/storage/app/public  # Mount storage directory
-            - ./public/storage:/var/www/public/storage         # Mount the symlink target
+            - ./storage/app/public:/var/www/storage/app/public
+        environment:
+            - DB_CONNECTION=mysql
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DB_DATABASE=laravel
+            - DB_USERNAME=laravel
+            - DB_PASSWORD=secret
         command: sh -c "
             if [ ! -f .env ]; then cp .env.example .env; fi &&
             php artisan key:generate &&

@@ -23,7 +23,8 @@ vendor
 .vscode
 .zed
 data
-
+docker
+public/storage
 # From bootstrap/cache/.gitignore
 bootstrap/cache/**/*
 !bootstrap/cache/**/.gitignore

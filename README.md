@@ -1,12 +1,12 @@
 Instruction to start app:
 
 1. clone repository
-2. enter folder with repository 
+2. enter folder with repository and appropriate docker build 
 3. launch docker-compose
 
 or just copy this line with commands:
 ```bash
-git clone https://github.com/Andriy8075/imageGallery.git && cd imageGallery && docker compose up
+git clone https://github.com/Andriy8075/imageGallery.git && cd imageGallery/docker/prod && docker compose up
 ```
 
 4. After getting message below open url http://127.0.0.1:8000/ in browser

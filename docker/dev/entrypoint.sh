@@ -1,7 +1,11 @@
 #!/bin/sh
 
-cd /var/www/backend || exit 1
+cd /var/www || exit 1
 composer install
+
+if [ ! -f .env ]; then
+  cp .env.example .env
+fi
 
 php artisan key:generate
 php artisan storage:link

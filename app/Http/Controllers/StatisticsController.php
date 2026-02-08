@@ -20,6 +20,8 @@ class StatisticsController extends Controller
             'totalUsers' => User::count(),
             'totalLikes' => DB::table('image_user_likes')->count(),
             'totalComments' => Comment::count(),
+            'mostLikedImage' => Image::withCount('likedByUsers')->orderBy('liked_by_users_count', 'desc')->first(),
+            'mostCommentedImage' => Image::withCount('comments')->orderBy('comments_count', 'desc')->first(),
         ];
 
         return view('statistics', compact('statistics'));

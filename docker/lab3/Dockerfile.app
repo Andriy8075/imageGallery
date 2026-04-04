@@ -76,4 +76,6 @@ ENV DB_CONNECTION=mysql \
     DB_USERNAME=laravel \
     DB_PASSWORD=secret
 
-CMD ["php-fpm"]
+RUN chmod +x docker/lab3/entrypoint.sh
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

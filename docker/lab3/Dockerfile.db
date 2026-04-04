@@ -1,0 +1,11 @@
+FROM mysql:8.0.44-bookworm
+
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=laravel
+ENV MYSQL_USER=laravel
+ENV MYSQL_PASSWORD=secret
+
+EXPOSE 3306
+
+HEALTHCHECK --interval=5s --timeout=5s --retries=30 \
+    CMD ["mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]

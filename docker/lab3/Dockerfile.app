@@ -69,4 +69,11 @@ RUN php artisan storage:link
 
 EXPOSE 8000
 
+ENV DB_CONNECTION=mysql \
+    DB_HOST=mysqldb \
+    DB_PORT=3306 \
+    DB_DATABASE=laravel \
+    DB_USERNAME=laravel \
+    DB_PASSWORD=secret
+
 CMD ["php-fpm"]

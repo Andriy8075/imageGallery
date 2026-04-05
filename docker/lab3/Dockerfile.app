@@ -66,10 +66,10 @@ RUN mkdir -p storage/app/public \
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
 
-RUN cp docker/lab3/.env.example .env \
-    && php artisan key:generate --no-interaction \
-    && php artisan storage:link \
-    && php artisan migrate
+RUN cp docker/lab3/.env.example .env
+RUN php artisan key:generate --no-interaction
+RUN php artisan storage:link
+RUN php artisan migrate
 
 EXPOSE 8000
 

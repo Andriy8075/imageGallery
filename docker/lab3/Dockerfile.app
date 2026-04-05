@@ -51,7 +51,13 @@ COPY --from=php-deps /app/vendor ./vendor
 COPY --from=node-build /app/public/build ./public/build
 COPY . .
 
-# Create storage directory structure and set permissions
+ENV DB_CONNECTION=mysql \
+    DB_HOST=mysqldb \
+    DB_PORT=3306 \
+    DB_DATABASE=laravel \
+    DB_USERNAME=laravel \
+    DB_PASSWORD=secret
+
 RUN mkdir -p storage/app/public \
     storage/framework/{cache,sessions,testing,views} \
     storage/logs \
@@ -60,18 +66,11 @@ RUN mkdir -p storage/app/public \
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
 
-# Create symbolic link
-RUN php artisan storage:link
+RUN cp docker/lab3/.env.example .env \
+    && php artisan key:generate --no-interaction \
+    && php artisan storage:link \
+    && php artisan migrate
 
 EXPOSE 8000
 
-ENV DB_CONNECTION=mysql \
-    DB_HOST=mysqldb \
-    DB_PORT=3306 \
-    DB_DATABASE=laravel \
-    DB_USERNAME=laravel \
-    DB_PASSWORD=secret
-
-RUN chmod +x docker/lab3/entrypoint.sh
-
-CMD ["sh", "docker/lab3/entrypoint.sh"]
+CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=8000"]

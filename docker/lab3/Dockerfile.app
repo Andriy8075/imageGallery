@@ -18,10 +18,7 @@ RUN composer install --no-dev --no-scripts --optimize-autoloader
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache \
-    bash \
-    vim \
     curl \
-    git \
     lsof \
     procps \
     tree \
@@ -31,7 +28,6 @@ RUN apk add --no-cache \
     libpng \
     oniguruma \
     libxml2 \
-    mariadb-client \
     libzip
 
 RUN apk add --no-cache --virtual .build-deps \
@@ -78,4 +74,4 @@ ENV DB_CONNECTION=mysql \
 
 RUN chmod +x docker/lab3/entrypoint.sh
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["sh", "docker/lab3/entrypoint.sh"]

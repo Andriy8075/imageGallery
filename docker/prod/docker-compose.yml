@@ -30,7 +30,7 @@ services:
             dockerfile: docker/prod/Dockerfile
         container_name: backend
         ports:
-            - "8000:8000"
+            - "80:8000"
         volumes:
             - ../../storage/app/public:/var/www/storage/app/public
         env_file:

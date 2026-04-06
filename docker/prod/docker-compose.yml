@@ -6,20 +6,19 @@ networks:
 services:
     db:
         image: mysql:8.0.44-bookworm
-        ports:
-            - "3306:3306"
         volumes:
             - ./data:/var/lib/mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=root
-            - MYSQL_DATABASE=laravel
-            - MYSQL_USER=laravel
-            - MYSQL_PASSWORD=secret
+        env_file:
+            - ../../.env
         networks:
             - application
         container_name: mysqldb
         healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+            test:
+                [
+                    "CMD-SHELL",
+                    "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1",
+                ]
             interval: 5s
             timeout: 5s
             retries: 30
@@ -34,13 +33,10 @@ services:
             - "8000:8000"
         volumes:
             - ../../storage/app/public:/var/www/storage/app/public
+        env_file:
+            - ../../.env
         environment:
-            - DB_CONNECTION=mysql
-            - DB_HOST=db
-            - DB_PORT=3306
-            - DB_DATABASE=laravel
-            - DB_USERNAME=laravel
-            - DB_PASSWORD=secret
+            DB_HOST: db
         command: ["sh", "/var/www/docker/prod/entrypoint.sh"]
         depends_on:
             db:

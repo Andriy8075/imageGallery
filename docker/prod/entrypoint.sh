@@ -9,6 +9,6 @@ until php artisan db:monitor; do
 done
 
 echo "Running migrations..."
-php artisan migrate || exit 1
+php artisan migrate --force || exit 1
 
 php artisan serve --host=0.0.0.0 --port=8000

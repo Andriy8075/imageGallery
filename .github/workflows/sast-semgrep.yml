@@ -1,0 +1,23 @@
+# Static analysis (OSS rulesets; no Semgrep Cloud token required).
+name: Semgrep
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: semgrep scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan
+        run: semgrep scan --config p/ci

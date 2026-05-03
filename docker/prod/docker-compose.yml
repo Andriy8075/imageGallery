@@ -1,4 +1,3 @@
-version: "3.8"
 networks:
     application:
         driver: bridge
@@ -8,6 +7,7 @@ services:
         image: mysql:8.0.44-bookworm
         volumes:
             - ./data:/var/lib/mysql
+            - ./mysql-low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
         env_file:
             - ../../.env
         networks:

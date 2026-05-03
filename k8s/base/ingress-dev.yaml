@@ -1,0 +1,20 @@
+# Optional: install an Ingress controller (e.g. ingress-nginx) and set your host / TLS.
+# Replace host; for local clusters use /etc/hosts or DNS.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: image-gallery
+  namespace: imagegallery-dev
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: imagegallery-dev.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: image-gallery
+                port:
+                  number: 80

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: image-gallery
+  namespace: imagegallery-prod
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: imagegallery-prod.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: image-gallery
+                port:
+                  number: 80

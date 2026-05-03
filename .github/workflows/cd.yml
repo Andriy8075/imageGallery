@@ -1,0 +1,125 @@
+# CD: test (reusable) → build & push GHCR → deploy to Kubernetes (dev/prod).
+#
+# GitHub repository Secrets (Settings → Secrets and variables → Actions):
+#   KUBE_CONFIG_DEV  — base64-encoded kubeconfig that can deploy to namespace imagegallery-dev
+#   KUBE_CONFIG_PROD — base64-encoded kubeconfig for imagegallery-prod (can equal DEV if same cluster)
+#
+# GitHub Environments (Settings → Environments): create "production" and add required reviewers
+# for manual approval before prod deploy (optional but recommended for ЛР "ручний запуск").
+#
+# First-time cluster setup: apply k8s/base/*.yaml in order (namespaces, secrets from secret.example,
+# mysql, pvc, deployment, service; ingress optional). Ensure GHCR image matches deployment image
+# or run one pipeline to push tags :develop and :main.
+name: Build and deploy
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Manual deploy target (push ignores this; use for deploy-only from Actions tab)'
+        type: choice
+        options: [none, dev, prod]
+        default: none
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  build-and-push:
+    needs: [test]
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      tag: ${{ steps.image.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image coordinates
+        id: image
+        run: |
+          REPO_LC=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          TAG="1.0.${GITHUB_RUN_NUMBER}"
+          echo "image=ghcr.io/${REPO_LC}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/prod/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.image.outputs.image }}:${{ steps.image.outputs.tag }}
+            ${{ steps.image.outputs.image }}:sha-${{ github.sha }}
+            ${{ steps.image.outputs.image }}:${{ github.ref_name }}
+
+  deploy-dev:
+    needs: [build-and-push]
+    if: |
+      needs.build-and-push.result == 'success' &&
+      (github.ref == 'refs/heads/develop' && github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_environment == 'dev')
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Kubeconfig (dev)
+        env:
+          KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_DEV }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "$KUBE_CONFIG_B64" | base64 -d > "$HOME/.kube/config"
+
+      - name: Roll out dev
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          TAG: ${{ needs.build-and-push.outputs.tag }}
+        run: |
+          kubectl set image deployment/image-gallery app="${IMAGE}:${TAG}" -n imagegallery-dev
+          kubectl rollout status deployment/image-gallery -n imagegallery-dev --timeout=300s
+
+  deploy-prod:
+    needs: [build-and-push]
+    if: |
+      needs.build-and-push.result == 'success' &&
+      (github.ref == 'refs/heads/main' && github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_environment == 'prod')
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Kubeconfig (prod)
+        env:
+          KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_PROD }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "$KUBE_CONFIG_B64" | base64 -d > "$HOME/.kube/config"
+
+      - name: Roll out prod
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          TAG: ${{ needs.build-and-push.outputs.tag }}
+        run: |
+          kubectl set image deployment/image-gallery app="${IMAGE}:${TAG}" -n imagegallery-prod
+          kubectl rollout status deployment/image-gallery -n imagegallery-prod --timeout=300s

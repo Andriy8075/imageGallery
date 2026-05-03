@@ -1,0 +1,77 @@
+# See deployment-dev.yaml header for GHCR imagePullSecrets and kubectl set image notes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-gallery
+  namespace: imagegallery-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-gallery
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: image-gallery
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: mysql:8.0.44-bookworm
+          command:
+            - sh
+            - -c
+            - "until mysqladmin ping -h mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" --silent; do sleep 2; done"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_ROOT_PASSWORD
+      containers:
+        - name: app
+          image: ghcr.io/andriy8075/imagegallery:main
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: laravel-env
+          volumeMounts:
+            - name: uploads
+              mountPath: /var/www/storage/app/public
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              cd /var/www
+              php artisan storage:link --force || true
+              php artisan migrate --force
+              exec php artisan serve --host=0.0.0.0 --port=8000
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: laravel-uploads

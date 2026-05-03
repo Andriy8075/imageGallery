@@ -1,3 +1,7 @@
+# Local kubectl binary (often curl'd into repo root; do not commit)
+/kubectl
+/kubectl.sha256
+
 /.phpunit.cache
 /node_modules
 /public/build

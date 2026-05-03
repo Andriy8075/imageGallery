@@ -3,6 +3,7 @@
 # GitHub repository Secrets (Settings → Secrets and variables → Actions):
 #   KUBE_CONFIG_DEV  — base64-encoded kubeconfig that can deploy to namespace imagegallery-dev
 #   KUBE_CONFIG_PROD — base64-encoded kubeconfig for imagegallery-prod (can equal DEV if same cluster)
+#   DIGITALOCEAN_ACCESS_TOKEN — DigitalOcean API token used by doctl when kubeconfig uses exec auth
 #
 # GitHub Environments (Settings → Environments): create "production" and add required reviewers
 # for manual approval before prod deploy (optional but recommended for ЛР "ручний запуск").
@@ -81,6 +82,11 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
 
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
       - name: Kubeconfig (dev)
         env:
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_DEV }}
@@ -108,6 +114,11 @@ jobs:
     steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Kubeconfig (prod)
         env:

@@ -4,7 +4,7 @@ metadata:
   name: image-gallery
   namespace: imagegallery-prod
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: image-gallery
   ports:

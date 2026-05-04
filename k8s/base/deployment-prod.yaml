@@ -1,4 +1,3 @@
-# See deployment-dev.yaml header for GHCR imagePullSecrets and kubectl set image notes.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

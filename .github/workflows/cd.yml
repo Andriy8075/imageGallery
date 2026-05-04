@@ -10,12 +10,12 @@
 #
 # First-time cluster setup: apply k8s/base/*.yaml in order (namespaces, secrets from secret.example,
 # mysql, pvc, deployment, service; ingress optional). Ensure GHCR image matches deployment image
-# or run one pipeline to push tags :develop and :main.
+# or run one pipeline to push tags :dev and :main.
 name: Build and deploy
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   workflow_dispatch:
     inputs:
       deploy_environment:
@@ -73,7 +73,7 @@ jobs:
     needs: [build-and-push]
     if: |
       needs.build-and-push.result == 'success' &&
-      (github.ref == 'refs/heads/develop' && github.event_name == 'push' ||
+      (github.ref == 'refs/heads/dev' && github.event_name == 'push' ||
        github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_environment == 'dev')
     uses: ./.github/workflows/deploy-k8s.yml
     with:

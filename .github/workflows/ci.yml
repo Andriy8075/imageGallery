@@ -3,7 +3,7 @@ name: Laravel Tests
 on:
   workflow_call:
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
 
 jobs:
   test:

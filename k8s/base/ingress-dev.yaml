@@ -1,5 +1,3 @@
-# Optional: install an Ingress controller (e.g. ingress-nginx) and set your host / TLS.
-# Replace host; for local clusters use /etc/hosts or DNS.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

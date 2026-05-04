@@ -1,7 +1,3 @@
-# Container name MUST be "app" for: kubectl set image deployment/image-gallery app=...
-# Replace image with your GHCR path after first push (lowercase owner/repo).
-# Private GHCR: create docker-registry secret (see secret.example.yaml) and set:
-#   spec.template.spec.imagePullSecrets: [{ name: ghcr-pull }]
 apiVersion: apps/v1
 kind: Deployment
 metadata:

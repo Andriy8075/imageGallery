@@ -1,11 +1,3 @@
-# Apply order (per environment: dev or prod — use the matching *-dev or *-prod files):
-#   1. namespaces.yaml
-#   2. Copy secret.example.yaml to real secrets, fill values, split by namespace; kubectl apply
-#   3. mysql-*.yaml, pvc-app-storage-*.yaml, deployment-*.yaml, service-*.yaml
-#   4. ingress-*.yaml (optional; set ingressClassName to match your controller)
-#
-# GitHub Actions secrets: KUBE_CONFIG_DEV, KUBE_CONFIG_PROD (base64 kubeconfig).
-#
 apiVersion: v1
 kind: Namespace
 metadata:

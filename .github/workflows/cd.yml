@@ -1,16 +1,3 @@
-# CD: test (reusable) → build & push GHCR → deploy to Kubernetes (dev/prod).
-#
-# GitHub repository Secrets (Settings → Secrets and variables → Actions):
-#   KUBE_CONFIG_DEV  — base64-encoded kubeconfig that can deploy to namespace imagegallery-dev
-#   KUBE_CONFIG_PROD — base64-encoded kubeconfig for imagegallery-prod (can equal DEV if same cluster)
-#   DIGITALOCEAN_ACCESS_TOKEN — DigitalOcean API token used by doctl when kubeconfig uses exec auth
-#
-# GitHub Environments (Settings → Environments): create "production" and add required reviewers
-# for manual approval before prod deploy (optional but recommended for ЛР "ручний запуск").
-#
-# First-time cluster setup: apply k8s/base/*.yaml in order (namespaces, secrets from secret.example,
-# mysql, pvc, deployment, service; ingress optional). Ensure GHCR image matches deployment image
-# or run one pipeline to push tags :dev and :main.
 name: Build and deploy
 
 on:

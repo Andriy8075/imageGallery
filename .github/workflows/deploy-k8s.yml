@@ -1,0 +1,62 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string
+      manifest_suffix:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+    secrets:
+      KUBE_CONFIG_B64:
+        required: true
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > "$HOME/.kube/config"
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/base/namespaces.yaml
+          kubectl apply -f "k8s/base/mysql-${{ inputs.manifest_suffix }}.yaml"
+          kubectl apply -f "k8s/base/pvc-app-storage-${{ inputs.manifest_suffix }}.yaml"
+          kubectl apply -f "k8s/base/deployment-${{ inputs.manifest_suffix }}.yaml"
+          kubectl apply -f "k8s/base/service-${{ inputs.manifest_suffix }}.yaml"
+          if [ -f "k8s/base/ingress-${{ inputs.manifest_suffix }}.yaml" ]; then
+            kubectl apply -f "k8s/base/ingress-${{ inputs.manifest_suffix }}.yaml"
+          fi
+
+      - name: Roll out
+        run: |
+          kubectl set image deployment/image-gallery app="${{ inputs.image }}:${{ inputs.tag }}" -n "${{ inputs.namespace }}"
+          kubectl rollout status deployment/image-gallery -n "${{ inputs.namespace }}" --timeout=300s
